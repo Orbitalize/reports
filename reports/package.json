@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "prebuild": "cd ../tools && yarn generate-types",
     "build": "tsc && vite build",

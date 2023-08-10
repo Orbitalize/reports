@@ -1,3 +1,6 @@
+# Report examples
+public/monitoring-tests-reports
+
 # Logs
 logs
 *.log
