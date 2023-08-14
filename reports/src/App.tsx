@@ -18,7 +18,10 @@ const report: ReportsReportTestRunReport = {
 }
 
 function App() {
-
+  // FIXME
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const configuration = JSON.stringify((window as any)["interuss"])
+  console.log("Configuration:", configuration)
   return (
     <>
     <h1>Report</h1>
