@@ -27,16 +27,8 @@ export const useReport = (): UseReportReturn => {
     fetchReport();
   }, []);
 
-  const parsedReport = useMemo(
-    () => (report ? parseReport(report) : undefined),
-    [report]
-  );
+  const parsedReport = report ? parseReport(report) : undefined;
+  const nav = parsedReport ? getNavFromCapability(parsedReport.capability) : [];
 
-  const nav = useMemo(
-    () => (parsedReport ? getNavFromCapability(parsedReport.capability) : []),
-    [parsedReport]
-  );
-
-  console.log("Nav", nav);
   return { report, nav };
 };
