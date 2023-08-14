@@ -26,5 +26,5 @@ ref="${ref//\//\-}"
 zip_name="app-${ref}.zip"
 
 cd dist/
-zip -r zip_name .
+zip -r "$zip_name" .
 echo "Output: dist/$zip_name"
