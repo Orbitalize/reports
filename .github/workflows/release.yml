@@ -5,8 +5,8 @@ on:
     tags:
       - '*'
 jobs:
-  release:
-    name: Release dist/
+  build_and_release:
+    name: Build and Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
