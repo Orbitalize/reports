@@ -3,7 +3,8 @@ import './App.css'
 import { ReportsReportTestRunReport } from './types/TestRunReport'
 
 // TODO: Replace with actual JSON report. Placeholder to verify proper typing.
-const report: ReportsReportTestRunReport = {
+const report: ReportsReportTestRunReport =
+{
   baseline_signature: '',
   codebase_version: '',
   commit_hash: '',
@@ -18,11 +19,14 @@ const report: ReportsReportTestRunReport = {
 }
 
 function App() {
-
+  // FIXME
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const configuration = JSON.stringify((window as any)["interuss"])
+  console.log("Configuration:", configuration)
   return (
     <>
-    <h1>Report</h1>
-    <code>{JSON.stringify(report, null, 2)}</code>
+      <h1>Report</h1>
+      <code>{JSON.stringify(report, null, 2)}</code>
     </>
   )
 }
