@@ -1,3 +1,4 @@
+name: Release Static Application
 on:
   pull_request:
   push:
@@ -7,7 +8,7 @@ jobs:
   release:
     name: Release dist/
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v1
