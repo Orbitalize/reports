@@ -20,5 +20,11 @@ cd ../reports
 yarn
 yarn run build
 
+ref="${GITHUB_REF_NAME:-local}"
+# Remove / characters
+ref="${ref//\//\-}"
+zip_name="app-${ref}.zip"
+
 cd dist/
-zip -r app.zip .
+zip -r zip_name .
+echo "Output: dist/$zip_name"
