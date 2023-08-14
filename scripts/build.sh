@@ -19,3 +19,6 @@ yarn run generate-types
 cd ../reports
 yarn
 yarn run build
+
+cd dist/
+zip -r app.zip .
