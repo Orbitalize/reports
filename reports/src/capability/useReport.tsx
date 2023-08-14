@@ -4,24 +4,11 @@ import {
   ReportsReportTestSuiteActionReport,
 } from "../types/TestRunReport";
 import { RouteObject } from "react-router-dom";
-import { CapabilityTable } from "./CapabilityTable";
+import { parseReport } from "./reportParser";
+import { getNavFromCapability } from "./reportNavigation";
 
 const reportUrl =
   "/monitoring-tests-reports/uss_qualifier/output/report_uspace.json";
-
-const getNavFromReport = (
-  report: ReportsReportTestSuiteActionReport,
-  path: string = ""
-): RouteObject => {
-  const children = report.test_suite?.actions.map((a, i) =>
-    getNavFromReport(a, `${i}`)
-  );
-  return {
-    path: `${path}`,
-    element: <CapabilityTable report={report} />,
-    children,
-  };
-};
 
 type UseReportReturn = {
   report?: ReportsReportTestRunReport;
@@ -40,10 +27,16 @@ export const useReport = (): UseReportReturn => {
     fetchReport();
   }, []);
 
-  const nav = useMemo(
-    () => (report ? [getNavFromReport(report.report)] : []),
+  const parsedReport = useMemo(
+    () => (report ? parseReport(report) : undefined),
     [report]
   );
 
+  const nav = useMemo(
+    () => (parsedReport ? getNavFromCapability(parsedReport.capability) : []),
+    [parsedReport]
+  );
+
+  console.log("Nav", nav);
   return { report, nav };
 };

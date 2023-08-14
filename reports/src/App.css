@@ -15,7 +15,9 @@ table, th, td {
 
 th, td {
   padding: 4px;
+  text-align: left;
 }
+
 td {
   &.fail {
     background-color: red;
@@ -27,4 +29,7 @@ td {
     color: white;
     font-weight: 600;
   }
+}
+th {
+  background-color: lightgray;
 }
