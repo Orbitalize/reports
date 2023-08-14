@@ -10,9 +10,21 @@ table {
 }
 
 table, th, td {
-  border: 1px solid;
+  border: 1px solid black;
 }
 
 th, td {
   padding: 4px;
+}
+td {
+  &.fail {
+    background-color: red;
+    color: white;
+    font-weight: 600;
+  }
+  &.pass {
+    background-color: green;
+    color: white;
+    font-weight: 600;
+  }
 }

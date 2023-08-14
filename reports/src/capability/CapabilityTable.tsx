@@ -23,6 +23,8 @@ export const CapabilityTable = ({ report }: CapabilityTableProps) => {
           <CapabilityRow capability={report} />
         </tbody>
       </table>
+      <br />
+      <br />
       <Outlet />
     </>
   );
