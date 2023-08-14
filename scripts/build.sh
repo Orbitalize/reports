@@ -21,6 +21,8 @@ yarn
 yarn run build
 
 ref="${GITHUB_REF_NAME:-local}"
+# Remove / characters
+ref="${ref//\//\-}
 
 cd dist/
 zip -r "app-${ref}.zip" .
