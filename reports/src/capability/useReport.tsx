@@ -1,8 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import {
-  ReportsReportTestRunReport,
-  ReportsReportTestSuiteActionReport,
-} from "../types/TestRunReport";
+import { useState, useEffect } from "react";
+import { ReportsReportTestRunReport } from "../types/TestRunReport";
 import { RouteObject } from "react-router-dom";
 import { parseReport } from "./reportParser";
 import { getNavFromCapability } from "./reportNavigation";
