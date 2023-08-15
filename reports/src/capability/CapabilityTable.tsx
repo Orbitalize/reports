@@ -2,22 +2,33 @@ import {
   Capability,
   Check,
   Requirement,
-  exampleReport,
 } from "./capabilityTypes";
 
 type CapabilityTableProps = {
-  capability?: Capability;
+  capability: Capability;
 };
 
+export const CheckLabel = ({name, docUrl} : {name: string, docUrl?: string}) => {
+    return docUrl ? <a href={docUrl}>{name}</a> : <>{name}</>
+}
+
 export const CheckRow = ({ check }: { check: Check }) => {
+  const separator = " :: "
+  const checkSource = <>
+    <CheckLabel {...check.scenario} />{separator}
+    <CheckLabel {...check.case} />{separator}
+    <CheckLabel {...check.step} />{separator}
+    <CheckLabel name={check.name} />
+  </>
+
   return (
     <tr>
-      <td>{check.name}</td>
+      <td>{checkSource}</td>
       <td className={check.result === "pass" ? "pass" : "fail"}>
         {check.result === "pass" ? "PASS" : "FAIL"}
       </td>
       <td>
-        <a href={check.detailLink}>Link</a>
+        <a href={check.detailsUrl}>Link</a>
       </td>
     </tr>
   );
@@ -91,7 +102,7 @@ export const CapabilityRows = ({ capability }: { capability: Capability }) => {
 };
 
 export const CapabilityTable = ({
-  capability = exampleReport.capability,
+  capability
 }: CapabilityTableProps) => {
   return (
     <>

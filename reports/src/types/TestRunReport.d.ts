@@ -74,17 +74,33 @@ export interface ReportsReportTestScenarioReport {
    */
   // $ref?: string;
   /**
-   * Name of this test scenario
+   * True iff test scenario completed normally with no failed checks
    */
-  name: string;
+  successful?: boolean;
+  /**
+   * Time at which the test scenario started
+   */
+  start_time: string;
+  /**
+   * Reports for each of the test cases in this test scenario
+   */
+  cases: ReportsReportTestCaseReport[];
   /**
    * URL at which this test scenario is described
    */
   documentation_url: string;
   /**
+   * If there was an error while executing this test scenario, this field describes the error
+   */
+  execution_error?: null | ReportsReportErrorReport;
+  /**
    * Time at which the test scenario completed or encountered an error
    */
   end_time?: string | null;
+  /**
+   * If this test scenario performed cleanup, this report captures the relevant information.
+   */
+  cleanup?: null | ReportsReportTestStepReport;
   /**
    * Additional information about this scenario that may be useful
    */
@@ -96,41 +112,13 @@ export interface ReportsReportTestScenarioReport {
     [k: string]: ReportsReportNote;
   } | null;
   /**
-   * Reports for each of the test cases in this test scenario
-   */
-  cases: ReportsReportTestCaseReport[];
-  /**
-   * Time at which the test scenario started
-   */
-  start_time: string;
-  /**
    * Type of this test scenario
    */
   scenario_type: string;
   /**
-   * If this test scenario performed cleanup, this report captures the relevant information.
+   * Name of this test scenario
    */
-  cleanup?: null | ReportsReportTestStepReport;
-  /**
-   * If there was an error while executing this test scenario, this field describes the error
-   */
-  execution_error?: null | ReportsReportErrorReport;
-  /**
-   * True iff test scenario completed normally with no failed checks
-   */
-  successful?: number;
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.reports.report.Note, as defined in monitoring/uss_qualifier/reports/report.py
- */
-export interface ReportsReportNote {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  message: string;
-  timestamp: string;
+  name: string;
   [k: string]: unknown;
 }
 /**
@@ -356,6 +344,18 @@ export interface ReportsReportErrorReport {
   [k: string]: unknown;
 }
 /**
+ * monitoring.uss_qualifier.reports.report.Note, as defined in monitoring/uss_qualifier/reports/report.py
+ */
+export interface ReportsReportNote {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  message: string;
+  timestamp: string;
+  [k: string]: unknown;
+}
+/**
  * monitoring.uss_qualifier.reports.report.ActionGeneratorReport, as defined in monitoring/uss_qualifier/reports/report.py
  */
 export interface ReportsReportActionGeneratorReport {
@@ -404,33 +404,33 @@ export interface ReportsReportTestSuiteReport {
    */
   // $ref?: string;
   /**
-   * Type/location of this test suite
+   * True iff test suite completed normally with no failed checks
    */
-  suite_type: string;
-  /**
-   * Reports from test scenarios and test suites comprising the test suite for this report
-   */
-  actions: ReportsReportTestSuiteActionReport1[];
-  /**
-   * List of capabilities defined in this test suite, evaluated for each participant.
-   */
-  capability_evaluations: ReportsReportParticipantCapabilityEvaluationReport[];
-  /**
-   * URL at which this test suite is described
-   */
-  documentation_url: string;
+  successful?: boolean;
   /**
    * Time at which the test suite started
    */
   start_time: string;
   /**
-   * True iff test suite completed normally with no failed checks
+   * URL at which this test suite is described
    */
-  successful?: number;
+  documentation_url: string;
+  /**
+   * List of capabilities defined in this test suite, evaluated for each participant.
+   */
+  capability_evaluations: ReportsReportParticipantCapabilityEvaluationReport[];
   /**
    * Time at which the test suite completed
    */
   end_time?: string | null;
+  /**
+   * Reports from test scenarios and test suites comprising the test suite for this report
+   */
+  actions: ReportsReportTestSuiteActionReport1[];
+  /**
+   * Type/location of this test suite
+   */
+  suite_type: string;
   /**
    * Name of this test suite
    */
@@ -445,19 +445,19 @@ export interface ReportsReportParticipantCapabilityEvaluationReport {
    * Path to content that replaces the $ref
    */
   // $ref?: string;
+  condition_evaluation: ReportsReportParticipantCapabilityConditionEvaluationReport;
   /**
-   * ID of capability being evaluated.
+   * Whether the capability was successfully verified.
    */
-  capability_id: string;
+  verified: boolean;
   /**
    * ID of participant for which capability is being evaluated.
    */
   participant_id: string;
   /**
-   * Whether the capability was successfully verified.
+   * ID of capability being evaluated.
    */
-  verified: number;
-  condition_evaluation: ReportsReportParticipantCapabilityConditionEvaluationReport;
+  capability_id: string;
   [k: string]: unknown;
 }
 /**
@@ -473,6 +473,14 @@ export interface ReportsReportParticipantCapabilityConditionEvaluationReport {
    */
   capability_verified?: null | ReportsReportCapabilityVerifiedConditionEvaluationReport;
   /**
+   * When specified, the condition evaluated was NoFailedChecksCondition.
+   */
+  no_failed_checks?: null | ReportsReportNoFailedChecksConditionEvaluationReport;
+  /**
+   * Whether the condition was satisfied for the relevant participant.
+   */
+  condition_satisfied: boolean;
+  /**
    * When specified, the condition evaluated was AnyCondition.
    */
   any_conditions?: null | ReportsReportAnyConditionEvaluationReport;
@@ -481,17 +489,9 @@ export interface ReportsReportParticipantCapabilityConditionEvaluationReport {
    */
   requirements_checked?: null | ReportsReportRequirementsCheckedConditionEvaluationReport;
   /**
-   * Whether the condition was satisfied for the relevant participant.
-   */
-  condition_satisfied: number;
-  /**
    * When specified, the condition evaluated was AllConditions.
    */
   all_conditions?: null | ReportsReportAllConditionsEvaluationReport;
-  /**
-   * When specified, the condition evaluated was NoFailedChecksCondition.
-   */
-  no_failed_checks?: null | ReportsReportNoFailedChecksConditionEvaluationReport;
   [k: string]: unknown;
 }
 /**
@@ -529,21 +529,21 @@ export interface ReportsReportCheckedCapability {
    */
   // $ref?: string;
   /**
-   * ID of the existing/previous participant-verifiable capability.
+   * Whether this capability was successfully verified
    */
-  capability_id: string;
+  capability_verified: boolean;
+  /**
+   * The location of the ParticipantCapabilityConditionEvaluationReport for the capability, relative to the TestSuiteReport in which this checked requirement is located.
+   */
+  capability_location: string;
   /**
    * Location of the ParticipantCapabilityEvaluationReport for the existing/previous capability, relative to the TestSuiteReport in which the CapabilityVerifiedConditionEvaluationReport containing this CheckedCapability is located.
    */
   report_location: string;
   /**
-   * Whether this capability was successfully verified
+   * ID of the existing/previous participant-verifiable capability.
    */
-  capability_verified: number;
-  /**
-   * The location of the ParticipantCapabilityConditionEvaluationReport for the capability, relative to the TestSuiteReport in which this checked requirement is located.
-   */
-  capability_location: string;
+  capability_id: string;
   [k: string]: unknown;
 }
 /**
@@ -564,6 +564,22 @@ export interface ReportsReportSpuriousReportMatch {
    * Location of the non-TestSuiteReport report element matching the CapabilityVerifiedCondition's `capability_location`, relative to the TestSuiteReport in which this condition is located.
    */
   location: string;
+  [k: string]: unknown;
+}
+/**
+ * Result of an evaluation of NoFailedChecksCondition dependent on whether any checks failed within the scope of the test suite in which this condition is located.
+ *
+ * monitoring.uss_qualifier.reports.report.NoFailedChecksConditionEvaluationReport, as defined in monitoring/uss_qualifier/reports/report.py
+ */
+export interface ReportsReportNoFailedChecksConditionEvaluationReport {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * The location of each FailedCheck, relative to the TestSuiteReport in which this report is located.
+   */
+  failed_checks: string[];
   [k: string]: unknown;
 }
 /**
@@ -603,6 +619,14 @@ export interface ReportsReportParticipantCapabilityConditionEvaluationReport1 {
    */
   capability_verified?: null | ReportsReportCapabilityVerifiedConditionEvaluationReport;
   /**
+   * When specified, the condition evaluated was NoFailedChecksCondition.
+   */
+  no_failed_checks?: null | ReportsReportNoFailedChecksConditionEvaluationReport;
+  /**
+   * Whether the condition was satisfied for the relevant participant.
+   */
+  condition_satisfied: boolean;
+  /**
    * When specified, the condition evaluated was AnyCondition.
    */
   any_conditions?: null | ReportsReportAnyConditionEvaluationReport;
@@ -611,17 +635,9 @@ export interface ReportsReportParticipantCapabilityConditionEvaluationReport1 {
    */
   requirements_checked?: null | ReportsReportRequirementsCheckedConditionEvaluationReport;
   /**
-   * Whether the condition was satisfied for the relevant participant.
-   */
-  condition_satisfied: number;
-  /**
    * When specified, the condition evaluated was AllConditions.
    */
   all_conditions?: null | ReportsReportAllConditionsEvaluationReport;
-  /**
-   * When specified, the condition evaluated was NoFailedChecksCondition.
-   */
-  no_failed_checks?: null | ReportsReportNoFailedChecksConditionEvaluationReport;
   [k: string]: unknown;
 }
 /**
@@ -690,22 +706,6 @@ export interface ReportsReportAllConditionsEvaluationReport {
    * All of the conditions that were unsatisfied (if any, then this condition will not be satisfied).
    */
   unsatisfied_conditions: ReportsReportParticipantCapabilityConditionEvaluationReport1[];
-  [k: string]: unknown;
-}
-/**
- * Result of an evaluation of NoFailedChecksCondition dependent on whether any checks failed within the scope of the test suite in which this condition is located.
- *
- * monitoring.uss_qualifier.reports.report.NoFailedChecksConditionEvaluationReport, as defined in monitoring/uss_qualifier/reports/report.py
- */
-export interface ReportsReportNoFailedChecksConditionEvaluationReport {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * The location of each FailedCheck, relative to the TestSuiteReport in which this report is located.
-   */
-  failed_checks: string[];
   [k: string]: unknown;
 }
 /**
