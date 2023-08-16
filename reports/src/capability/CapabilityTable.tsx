@@ -1,25 +1,27 @@
-import {
-  Capability,
-  Check,
-  Requirement,
-} from "./capabilityTypes";
+import {useLocation, useNavigate} from "react-router-dom";
+import {Capability, Check, Requirement} from "./capabilityTypes";
 
 type CapabilityTableProps = {
   capability: Capability;
 };
 
-export const CheckLabel = ({name, docUrl} : {name: string, docUrl?: string}) => {
-    return docUrl ? <a href={docUrl}>{name}</a> : <>{name}</>
-}
+export const CheckLabel = ({name, docUrl}: {name: string; docUrl?: string}) => {
+  return docUrl ? <a href={docUrl}>{name}</a> : <>{name}</>;
+};
 
-export const CheckRow = ({ check }: { check: Check }) => {
-  const separator = " :: "
-  const checkSource = <>
-    <CheckLabel {...check.scenario} />{separator}
-    <CheckLabel {...check.case} />{separator}
-    <CheckLabel {...check.step} />{separator}
-    <CheckLabel name={check.name} />
-  </>
+export const CheckRow = ({check}: {check: Check}) => {
+  const separator = " :: ";
+  const checkSource = (
+    <>
+      <CheckLabel {...check.scenario} />
+      {separator}
+      <CheckLabel {...check.case} />
+      {separator}
+      <CheckLabel {...check.step} />
+      {separator}
+      <CheckLabel name={check.name} />
+    </>
+  );
 
   return (
     <tr>
@@ -57,10 +59,13 @@ export const ChildCapabilityRow = ({
   capability: Capability;
   path: string;
 }) => {
+  const navigate = useNavigate();
   return (
     <tr>
       <td colSpan={2}>
-        <a href={path}>{capability.name}</a>
+        <a onClick={() => navigate(path, {relative: "path"})}>
+          {capability.name} ({capability.participant_id})
+        </a>
       </td>
       <td
         className={capability.result === "pass" ? "pass" : "fail"}
@@ -81,7 +86,7 @@ const ChildCapabilityHeader = () => {
   );
 };
 
-export const CapabilityRows = ({ capability }: { capability: Capability }) => {
+export const CapabilityRows = ({capability}: {capability: Capability}) => {
   const requirements = capability.requirements
     .flatMap((r) => requirementRow(r))
     .flat();
@@ -95,15 +100,19 @@ export const CapabilityRows = ({ capability }: { capability: Capability }) => {
   const allRows = [...requirements, ...childTable];
   return [
     <tr>
-      <td rowSpan={allRows.length + 1}>{capability.name}</td>
+      <td rowSpan={allRows.length + 1}>
+        {capability.name} ({capability.participant_id})
+      </td>
     </tr>,
     ...allRows,
   ];
 };
 
-export const CapabilityTable = ({
-  capability
-}: CapabilityTableProps) => {
+export const CapabilityDebug = ({capability}: {capability: Capability}) => {
+  return <code><pre style={{textAlign:"left"}}>{JSON.stringify(capability, null, 2)}</pre></code>;
+};
+
+export const CapabilityTable = ({capability}: CapabilityTableProps) => {
   return (
     <>
       <table>
@@ -120,6 +129,7 @@ export const CapabilityTable = ({
           <CapabilityRows capability={capability} />
         </tbody>
       </table>
+      <CapabilityDebug capability={capability} />
     </>
   );
 };

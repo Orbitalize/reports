@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createHashRouter } from "react-router-dom";
 import { useReport } from "./capability/useReport";
 import "./App.css";
 
@@ -15,7 +15,7 @@ function App() {
   if (!report) {
     return <div>Report not found</div>;
   }
-  const router = createBrowserRouter(nav);
+  const router = createHashRouter(nav);
   return <>
     <RouterProvider router={router} />
   </>;

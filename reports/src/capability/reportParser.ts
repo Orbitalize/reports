@@ -1,5 +1,9 @@
 import {
+  ReportsReportCapabilityVerifiedConditionEvaluationReport,
+  ReportsReportCheckedCapability,
   ReportsReportCheckedRequirement,
+  ReportsReportParticipantCapabilityConditionEvaluationReport1,
+  ReportsReportParticipantCapabilityEvaluationReport,
   ReportsReportRequirementsCheckedConditionEvaluationReport,
   ReportsReportTestRunReport,
   ReportsReportTestSuiteActionReport,
@@ -21,7 +25,14 @@ const flattenChecks = (
 ): Check[] => {
   const expandCheck = (checkLocation: string, result: CheckResult): Check => {
     const l = jp.parse(checkLocation);
-    const check = jp.value(root, jp.stringify(l));
+    let check = jp.value(root, jp.stringify(l));
+    if (!check) {
+      console.warn(`Unable to locate check ${checkLocation}`)
+      if (!check) {
+        check = jp.value(root, "$.actions[0].test_suite."+jp.stringify(l).slice(1))
+        console.error(`Unable to locate check ${checkLocation}`)
+      }
+    }
     const step = jp.value(root, jp.stringify(l.slice(0, -2)));
     const _case = jp.value(root, jp.stringify(l.slice(0, -4)));
     const scenario = jp.value(root, jp.stringify(l.slice(0, -6)));
@@ -75,33 +86,155 @@ const flattenRequirements = (
   ];
 };
 
-const getCapability = (
-  testSuite: ReportsReportTestSuiteReport
+const parseCheckedCapability = (
+  checkedCapability: ReportsReportCheckedCapability,
+  parentTestSuite: ReportsReportTestSuiteReport
+): Capability => {
+  const capabilityLocation = checkedCapability.capability_location;
+  const ce = jp.value(
+    parentTestSuite,
+    capabilityLocation
+  ) as ReportsReportParticipantCapabilityEvaluationReport;
+  if (!ce) {
+    console.error(
+      `Unable to locate checked capability ${checkedCapability.capability_id}: ${capabilityLocation}`
+    );
+  }
+  const name = ce ? ce.capability_id : checkedCapability.capability_id;
+  const participant_id = ce ? ce.participant_id : "unknown";
+
+  const childCapabilities = ce
+    ? parseCapabilityEvaluations([ce], jp.value(parentTestSuite, checkedCapability.report_location))
+    : [];
+
+  return {
+    name,
+    participant_id,
+    result: ce
+      ? ce.condition_evaluation.condition_satisfied
+        ? "pass"
+        : "fail"
+      : "missing", // TODO: Verify that this statement is correct
+    childCapabilities,
+    requirements: [],
+  };
+};
+
+const parseMissingCapability = (missingCapabilityId: string): Capability => {
+  return {
+    name: missingCapabilityId,
+    result: "missing",
+    childCapabilities: [],
+    requirements: [],
+  };
+};
+
+const parseSpuriousMatches =
+  (): // spuriousMatches: ReportsReportSpuriousReportMatch,
+  Capability[] => {
+    throw new NotImplementedError("SpuriousMatches not implemented yet");
+  };
+
+const parseCapabilityVerified = (
+  capabilityVerified: ReportsReportCapabilityVerifiedConditionEvaluationReport,
+  parentTestSuite: ReportsReportTestSuiteReport
 ): Capability[] => {
-  return testSuite.capability_evaluations
+  return [
+    ...capabilityVerified.checked_capabilities.map((cc) =>
+      parseCheckedCapability(cc, parentTestSuite)
+    ),
+    ...capabilityVerified.missing_capabilities.map(parseMissingCapability),
+    ...capabilityVerified.spurious_matches.map(parseSpuriousMatches),
+  ].flat();
+};
+
+const parseConditionEvaluation = (
+  condition: ReportsReportParticipantCapabilityConditionEvaluationReport1,
+  parentTestSuite: ReportsReportTestSuiteReport
+): Capability[] => {
+  if (condition.all_conditions) {
+    return [
+      ...condition.all_conditions.satisfied_conditions.map((c) =>
+        parseConditionEvaluation(c, parentTestSuite)
+      ),
+      ...condition.all_conditions.unsatisfied_conditions.map((c) =>
+        parseConditionEvaluation(c, parentTestSuite)
+      ),
+    ].flat();
+  } else if (condition.requirements_checked) {
+    const r = condition.requirements_checked;
+    console.log("FR", condition)
+    return [{
+      name: "unknown",
+      requirements: flattenRequirements(r, parentTestSuite),
+      childCapabilities: [],
+      result: condition.condition_satisfied ? "pass" : "fail",
+      // participant_id,  // TODO
+    }]
+  } else if (condition.capability_verified) {
+    return parseCapabilityVerified(
+      condition.capability_verified,
+      parentTestSuite
+    );
+  }
+  return [];
+};
+
+const parseCapabilityEvaluations = (
+  capabilityEvaluations: ReportsReportParticipantCapabilityEvaluationReport[],
+  parentTestSuite: ReportsReportTestSuiteReport
+): Capability[] => {
+  return capabilityEvaluations
     .map((ce) => {
       const c = ce.condition_evaluation;
-      const name = `${ce.capability_id} (${ce.participant_id})`
+      const name = ce.capability_id;
+      const participant_id = ce.participant_id;
+
       if (c.requirements_checked) {
+        console.log("RC", c.requirements_checked);
         return {
           name,
+          participant_id,
           result: ce.verified ? "pass" : "fail",
-          requirements: flattenRequirements(c.requirements_checked, testSuite),
+          requirements: flattenRequirements(
+            c.requirements_checked,
+            parentTestSuite
+          ),
           childCapabilities: [],
-          participant_id: ce.participant_id,
         };
+
       } else if (c.capability_verified) {
+        console.log("CV", c.capability_verified);
         return {
           name,
+          participant_id,
           result: ce.verified ? "pass" : "fail",
           requirements: [],
-          childCapabilities: [], // TODO: Add child capabilities
-          participant_id: ce.participant_id,
+          childCapabilities: parseCapabilityVerified(
+            c.capability_verified,
+            parentTestSuite
+          ),
         };
-      } else {
-        return null;
+
+      } else if (c.all_conditions) {
+        console.log("AC", c.all_conditions);
+        return {
+          name,
+          participant_id,
+          result: ce.verified ? "pass" : "fail",
+          requirements: [],
+          childCapabilities: [
+            ...c.all_conditions.satisfied_conditions.map((sc) =>
+              parseConditionEvaluation(sc, parentTestSuite)
+            ),
+            ...c.all_conditions.unsatisfied_conditions.map((sc) =>
+              parseConditionEvaluation(sc, parentTestSuite)
+            ),
+          ].flat(),
+        };
       }
     })
+    .flat()
     .filter((x) => !!x) as Capability[];
 };
 
@@ -112,8 +245,10 @@ const parseActions = (
 
   if (node.test_suite) {
     return [
-      ...getCapability(node.test_suite),
-      ...node.test_suite.actions.map((a) => parseActions(a)),
+      ...parseCapabilityEvaluations(
+        node.test_suite.capability_evaluations,
+        node.test_suite
+      ),
     ].flat();
   } else if (node.test_scenario) {
     return [];
@@ -124,7 +259,6 @@ const parseActions = (
       })
       .flat();
   } else {
-    // TODO Improve
     console.error("Unknown state");
     return [];
   }
@@ -137,10 +271,11 @@ const _parseReport = (report: ReportsReportTestSuiteActionReport): Report => {
         name: "root",
         childCapabilities: parseActions(report),
         result: "missing",
-        requirements:[]
-      }
+        requirements: [],
+      },
     };
   } else {
+    // TODO: Support other type of root element
     throw new NotImplementedError(
       "Not implemented: Only report with a single root test_suite is supported."
     );

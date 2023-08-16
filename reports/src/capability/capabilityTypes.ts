@@ -27,6 +27,7 @@ export type Requirement = {
 
 export type Capability = {
   name: string;
+  participant_id?: string;
   result: CapabilityResult;
   requirements: Requirement[];
   childCapabilities: Capability[];
