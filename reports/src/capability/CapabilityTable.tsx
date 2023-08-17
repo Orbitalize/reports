@@ -40,26 +40,17 @@ export const CheckRow = ({ check }: { check: Check }) => {
         {check.result === "pass" ? "PASS" : "FAIL"}
       </td>
       <td>
-        <a onClick={() => setShowDetails(true)}>Link</a>
+        <button onClick={() => setShowDetails(true)}>Open</button>
         {/* TODO: Beautify popup / move to a dedicated page */}
         {showDetails && (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "#fff",
-            }}
-          >
-            <a onClick={() => setShowDetails(false)}>
+          <div className="detailOverlay">
+            <div onClick={() => setShowDetails(false)}>
               <i>Click anywhere to close.</i>
               <h2>
                 {check.name} was evaluated in step {check.step.name}. Details:
               </h2>
               <pre>{JSON.stringify(check.details, null, 2)}</pre>
-            </a>
+            </div>
           </div>
         )}
       </td>
