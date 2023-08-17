@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Report</title>
     <!--
-      To configure the application, set the window.interuss object.
-      See TemplatedReportApplicationConfiguration in [1] for details about the expected structure.
+      To configure the application, set the a script tag with id `interuss_report_json`.
+      Example:
+      <script id="interuss_report_json" type="application/json">
+        {}
+      </script>
+      See TemplatedReportInjectedConfiguration in [1] for details about the expected structure.
 
       [1] https://github.com/interuss/monitoring/blob/main/monitoring/uss_qualifier/configurations/configuration.py
 
-      Do not remove the next commented tag since it used by the templating engine to automate configuration injection.
+      Do not remove the next comment tag since it is used by the templating engine to automate configuration injection.
     -->
     <!-- Configuration goes here -->
   </head>
