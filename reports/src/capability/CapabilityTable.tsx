@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Capability, Check, Requirement } from "./capabilityTypes";
 import { useEffect, useState } from "react";
 import { useMatches } from "react-router-dom";
@@ -90,13 +90,12 @@ export const ChildCapabilityRow = ({
   capability: Capability;
   path: string;
 }) => {
-  const navigate = useNavigate();
   return (
     <tr>
       <td colSpan={2}>
-        <a onClick={() => navigate(path, { relative: "path" })}>
+        <Link to={path}>
           {capability.name} ({capability.participant_id})
-        </a>
+        </Link>
       </td>
       <td
         className={capability.result === "pass" ? "pass" : "fail"}
