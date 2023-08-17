@@ -1,5 +1,6 @@
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {Capability, Check, Requirement} from "./capabilityTypes";
+import {useEffect, useState} from "react";
 
 type CapabilityTableProps = {
   capability: Capability;
@@ -10,6 +11,7 @@ export const CheckLabel = ({name, docUrl}: {name: string; docUrl?: string}) => {
 };
 
 export const CheckRow = ({check}: {check: Check}) => {
+  const [showDetails, setShowDetails] = useState(false);
   const separator = " :: ";
   const checkSource = (
     <>
@@ -30,7 +32,28 @@ export const CheckRow = ({check}: {check: Check}) => {
         {check.result === "pass" ? "PASS" : "FAIL"}
       </td>
       <td>
-        <a href={check.detailsUrl}>Link</a>
+        <a onClick={() => setShowDetails(true)}>Link</a>
+        {/* TODO: Beautify popup / move to a dedicated page */}
+        {showDetails && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "#fff",
+            }}
+          >
+            <a onClick={() => setShowDetails(false)}>
+              <i>Click anywhere to close.</i>
+              <h2>
+                {check.name} was evaluated in step {check.step.name}. Details:
+              </h2>
+              <pre>{JSON.stringify(check.details, null, 2)}</pre>
+            </a>
+          </div>
+        )}
       </td>
     </tr>
   );
@@ -109,7 +132,12 @@ export const CapabilityRows = ({capability}: {capability: Capability}) => {
 };
 
 export const CapabilityDebug = ({capability}: {capability: Capability}) => {
-  return <code><pre style={{textAlign:"left"}}>{JSON.stringify(capability, null, 2)}</pre></code>;
+  // return <code><pre style={{textAlign:"left"}}>{JSON.stringify(capability, null, 2)}</pre></code>;
+  useEffect(
+    () => console.info("Displayed Capability: ", capability),
+    [capability]
+  );
+  return <></>;
 };
 
 export const CapabilityTable = ({capability}: CapabilityTableProps) => {

@@ -17,7 +17,7 @@ export type Check = {
 
   name: string;
   result: CheckResult
-  detailsUrl: string;
+  details: object; // Switch to a JSON path
 }
 
 export type Requirement = {
