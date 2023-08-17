@@ -169,7 +169,6 @@ const parseConditionEvaluation = (
     ];
   } else if (condition.requirements_checked) {
     const r = condition.requirements_checked;
-    // TODO: Move one level up.
     return [parseRequirementsCheck(r, parentTestSuite), []];
   } else if (condition.capability_verified) {
     return [
