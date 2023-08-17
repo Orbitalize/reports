@@ -134,7 +134,9 @@ const parseMissingCapability = (missingCapabilityId: string): Capability => {
 const parseSpuriousMatches = (
   _spuriousMatches: ReportsReportSpuriousReportMatch
 ): Capability[] => {
-  throw new NotImplementedError(`SpuriousMatches not implemented yet: ${_spuriousMatches}`);
+  throw new NotImplementedError(
+    `SpuriousMatches not implemented yet: ${_spuriousMatches}`
+  );
 };
 
 const parseCapabilityVerified = (
@@ -153,34 +155,37 @@ const parseCapabilityVerified = (
 const parseConditionEvaluation = (
   condition: ReportsReportParticipantCapabilityConditionEvaluationReport1,
   parentTestSuite: ReportsReportTestSuiteReport
-): Capability[] => {
+): [Requirement[], Capability[]] => {
   if (condition.all_conditions) {
+    const sc = condition.all_conditions.satisfied_conditions.map((c) =>
+      parseConditionEvaluation(c, parentTestSuite)
+    );
+    const uc = condition.all_conditions.unsatisfied_conditions.map((c) =>
+      parseConditionEvaluation(c, parentTestSuite)
+    );
     return [
-      ...condition.all_conditions.satisfied_conditions.map((c) =>
-        parseConditionEvaluation(c, parentTestSuite)
-      ),
-      ...condition.all_conditions.unsatisfied_conditions.map((c) =>
-        parseConditionEvaluation(c, parentTestSuite)
-      ),
-    ].flat();
+      [...sc.map((s) => s[0]), ...uc.map((u) => u[0])].flat(),
+      [...sc.map((s) => s[1]), ...uc.map((s) => s[1])].flat(),
+    ];
   } else if (condition.requirements_checked) {
     const r = condition.requirements_checked;
-    // TODO: Move one level up.
-    return [
-      {
-        name: "unknown",
-        requirements: parseRequirementsCheck(r, parentTestSuite),
-        childCapabilities: [],
-        result: condition.condition_satisfied ? "pass" : "fail",
-      },
-    ];
+    return [parseRequirementsCheck(r, parentTestSuite), []];
   } else if (condition.capability_verified) {
-    return parseCapabilityVerified(
-      condition.capability_verified,
-      parentTestSuite
+    return [
+      [],
+      parseCapabilityVerified(condition.capability_verified, parentTestSuite),
+    ];
+  } else {
+    //   // TODO: Handle no_failed_checks check
+    //   // TODO: Handle any_condition
+    console.error(
+      `Unsupported capabilityEvaluation with keys: ${JSON.stringify(
+        Object.keys(condition)
+      )}: ${JSON.stringify(condition)}`
     );
   }
-  return [];
+
+  return [[], []];
 };
 
 const parseCapabilityEvaluations = (
@@ -193,55 +198,14 @@ const parseCapabilityEvaluations = (
       const name = ce.capability_id;
       const participant_id = ce.participant_id;
 
-      if (c.all_conditions) {
-        console.log("AC", c.all_conditions);
-        return {
-          name,
-          participant_id,
-          result: ce.verified ? "pass" : "fail",
-          requirements: [],
-          childCapabilities: [
-            ...c.all_conditions.satisfied_conditions.map((sc) =>
-              parseConditionEvaluation(sc, parentTestSuite)
-            ),
-            ...c.all_conditions.unsatisfied_conditions.map((sc) =>
-              parseConditionEvaluation(sc, parentTestSuite)
-            ),
-          ].flat(),
-        };
-      } else if (c.requirements_checked) {
-        console.log("RC", c.requirements_checked);
-        return {
-          name,
-          participant_id,
-          result: ce.verified ? "pass" : "fail",
-          requirements: parseRequirementsCheck(
-            c.requirements_checked,
-            parentTestSuite
-          ),
-          childCapabilities: [],
-        };
-      } else if (c.capability_verified) {
-        console.log("CV", c.capability_verified);
-        return {
-          name,
-          participant_id,
-          result: ce.verified ? "pass" : "fail",
-          requirements: [],
-          childCapabilities: parseCapabilityVerified(
-            c.capability_verified,
-            parentTestSuite
-          ),
-        };
-      } else {
-        // TODO: Handle no_failed_checks check
-        // TODO: Handle any_condition
-        throw new Error(
-          `Unsupported capabilityEvaluation with keys: ${JSON.stringify(
-            Object.keys(c)
-          )}: ${JSON.stringify(c)}`
-        );
-      }
+      const evaluation = parseConditionEvaluation(c, parentTestSuite);
+      return {
+        name,
+        participant_id,
+        result: ce.verified ? "pass" : "fail",
+        requirements: evaluation[0],
+        childCapabilities: evaluation[1],
+      };
     })
     .flat()
     .filter((x) => !!x) as Capability[];
@@ -268,8 +232,9 @@ const parseActions = (
       })
       .flat();
   } else {
-
-    console.error("One of test_suite, test_scenario or action_generator key should be defined.");
+    console.error(
+      "One of test_suite, test_scenario or action_generator key should be defined."
+    );
     return [];
   }
 };
