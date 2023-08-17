@@ -1,24 +1,24 @@
-import {useState, useEffect, useMemo} from "react";
-import {
-  ReportsReportTestRunReport,
-} from "../types/TestRunReport";
-import {RouteObject} from "react-router-dom";
-import {parseReport} from "./reportParser";
-import {getNavFromCapability} from "./reportNavigation";
+import { useState, useEffect, useMemo } from "react";
+import { ReportsReportTestRunReport } from "../types/TestRunReport";
+import { RouteObject } from "react-router-dom";
+import { parseReport } from "./reportParser";
+import { getNavFromCapability } from "./reportNavigation";
 
 const reportUrl = "/report_uspace.json";
 
 type UseReportProps = {
-  report?: ReportsReportTestRunReport
-}
+  report?: ReportsReportTestRunReport;
+};
 
 type UseReportReturn = {
-  loading: boolean,
+  loading: boolean;
   report?: ReportsReportTestRunReport;
   nav: RouteObject[];
 };
 
-export const useReport = ({report: _report}: UseReportProps): UseReportReturn => {
+export const useReport = ({
+  report: _report,
+}: UseReportProps): UseReportReturn => {
   const [loading, setLoading] = useState<boolean>(true);
   const [report, setReport] = useState<ReportsReportTestRunReport>();
 
@@ -38,7 +38,13 @@ export const useReport = ({report: _report}: UseReportProps): UseReportReturn =>
     fetchReport();
   }, []);
 
-  const parsedReport = useMemo(() => report ? parseReport(report) : undefined, [report]);
-  const nav = useMemo(() => parsedReport ? getNavFromCapability(parsedReport.capability) : [], [parsedReport]);
-  return {loading, report, nav};
+  const parsedReport = useMemo(
+    () => (report ? parseReport(report) : undefined),
+    [report]
+  );
+  const nav = useMemo(
+    () => (parsedReport ? getNavFromCapability(parsedReport.capability) : []),
+    [parsedReport]
+  );
+  return { loading, report, nav };
 };

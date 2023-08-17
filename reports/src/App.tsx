@@ -16,9 +16,7 @@ function App() {
     return <div>Report not found</div>;
   }
   const router = createHashRouter(nav);
-  return <>
-    <RouterProvider router={router} />
-  </>;
+  return <RouterProvider router={router} />;
 }
 
 export default App;

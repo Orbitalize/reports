@@ -1,16 +1,24 @@
-import {useNavigate} from "react-router-dom";
-import {Capability, Check, Requirement} from "./capabilityTypes";
-import {useEffect, useState} from "react";
+import { Link } from "react-router-dom";
+import { Capability, Check, Requirement } from "./capabilityTypes";
+import { useEffect, useState } from "react";
+import { useMatches } from "react-router-dom";
+import { ReactNode } from "react";
 
 type CapabilityTableProps = {
   capability: Capability;
 };
 
-export const CheckLabel = ({name, docUrl}: {name: string; docUrl?: string}) => {
+export const CheckLabel = ({
+  name,
+  docUrl,
+}: {
+  name: string;
+  docUrl?: string;
+}) => {
   return docUrl ? <a href={docUrl}>{name}</a> : <>{name}</>;
 };
 
-export const CheckRow = ({check}: {check: Check}) => {
+export const CheckRow = ({ check }: { check: Check }) => {
   const [showDetails, setShowDetails] = useState(false);
   const separator = " :: ";
   const checkSource = (
@@ -82,13 +90,12 @@ export const ChildCapabilityRow = ({
   capability: Capability;
   path: string;
 }) => {
-  const navigate = useNavigate();
   return (
     <tr>
       <td colSpan={2}>
-        <a onClick={() => navigate(path, {relative: "path"})}>
+        <Link to={path}>
           {capability.name} ({capability.participant_id})
-        </a>
+        </Link>
       </td>
       <td
         className={capability.result === "pass" ? "pass" : "fail"}
@@ -109,7 +116,7 @@ const ChildCapabilityHeader = () => {
   );
 };
 
-export const CapabilityRows = ({capability}: {capability: Capability}) => {
+export const CapabilityRows = ({ capability }: { capability: Capability }) => {
   const requirements = capability.requirements
     .flatMap((r) => requirementRow(r))
     .flat();
@@ -131,7 +138,7 @@ export const CapabilityRows = ({capability}: {capability: Capability}) => {
   ];
 };
 
-export const CapabilityDebug = ({capability}: {capability: Capability}) => {
+export const CapabilityDebug = ({ capability }: { capability: Capability }) => {
   // return <code><pre style={{textAlign:"left"}}>{JSON.stringify(capability, null, 2)}</pre></code>;
   useEffect(
     () => console.info("Displayed Capability: ", capability),
@@ -140,9 +147,37 @@ export const CapabilityDebug = ({capability}: {capability: Capability}) => {
   return <></>;
 };
 
-export const CapabilityTable = ({capability}: CapabilityTableProps) => {
+type CrumbHandle = { crumb: () => ReactNode };
+function Breadcrumbs() {
+  const matches = useMatches();
+  const crumbs = matches
+    // first get rid of any matches that don't have handle and crumb
+    .filter((match) =>
+      Boolean((match.handle as CrumbHandle | undefined)?.crumb)
+    )
+    .slice(0, -1) // Skip last crumb
+    .map((match) => (match.handle as CrumbHandle).crumb())
+    .reverse();
+
+  return (
+    <div>
+      {crumbs.map((crumb, index) => (
+        <span key={index}>
+          {crumb}
+          {index === crumbs.length - 1 ? "" : " <= "}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
+  if (!capability) {
+    return <span>Capability not found</span>;
+  }
   return (
     <>
+      <Breadcrumbs />
       <table>
         <thead>
           <tr>
