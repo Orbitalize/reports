@@ -46,6 +46,5 @@ export const useReport = ({
     () => (parsedReport ? getNavFromCapability(parsedReport.capability) : []),
     [parsedReport]
   );
-  console.log("Nav", nav);
   return { loading, report, nav };
 };

@@ -26,7 +26,6 @@ export const getNavFromCapability = (
     capability.childCapabilities.flatMap((c, i) =>
       getNavFromCapability(c, `${i}`, joinRoutes(fullPath, i.toString()))
     ) || [];
-  console.log("Full path", fullPath);
   return [
     {
       path: path,
