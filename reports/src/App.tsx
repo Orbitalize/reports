@@ -5,15 +5,15 @@ import "./App.css";
 function App() {
   // FIXME use the report from the config
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const configuration = JSON.parse((window as any)["interuss"] || "{}");
+  const configuration = JSON.parse(document.getElementById("interuss_report_json")?.innerHTML || "{}");
   console.log("Configuration:", configuration);
 
-  const { loading, report, nav } = useReport(configuration);
+  const { loading, error, report, nav } = useReport(configuration);
   if (loading) {
     return <div>Loading report...</div>;
   }
-  if (!report) {
-    return <div>Report not found</div>;
+  if (!report || error) {
+    return !error ? <div>Report not found</div> : <div>{error}</div>;
   }
   const router = createHashRouter(nav);
   return <RouterProvider router={router} />;
