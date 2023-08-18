@@ -12,6 +12,7 @@ type UseReportProps = {
 
 type UseReportReturn = {
   loading: boolean;
+  error?: string;
   report?: ReportsReportTestRunReport;
   nav: RouteObject[];
 };
@@ -20,7 +21,8 @@ export const useReport = ({
   report: _report,
 }: UseReportProps): UseReportReturn => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [report, setReport] = useState<ReportsReportTestRunReport>();
+  const [error, setError] = useState<string>();
+  const [report, setReport] = useState<ReportsReportTestRunReport | undefined>(_report);
 
   useEffect(() => {
     if (_report) {
@@ -30,10 +32,20 @@ export const useReport = ({
     }
 
     const fetchReport = async () => {
-      const res = await fetch(reportUrl);
-      const json = await res.json();
-      setReport(json as ReportsReportTestRunReport);
-      setLoading(false);
+      try {
+        const res = await fetch(reportUrl);
+        if (res.status === 404) {
+          throw new Error("Report not found")
+        }
+        const json = await res.json();
+        setReport(json as ReportsReportTestRunReport);
+
+      } catch (err) {
+        console.error(err);
+        setError(JSON.stringify(err));
+      } finally {
+        setLoading(false);
+      }
     };
     fetchReport();
   }, []);
@@ -46,5 +58,5 @@ export const useReport = ({
     () => (parsedReport ? getNavFromCapability(parsedReport.capability) : []),
     [parsedReport]
   );
-  return { loading, report, nav };
+  return {loading, error, report, nav};
 };
