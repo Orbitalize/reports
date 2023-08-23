@@ -1,4 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  Breadcrumbs,
+  Button,
+  Link,
+  Dialog,
+  DialogContent,
+  Typography,
+} from "@mui/material";
 import { Capability, Check, Requirement } from "./capabilityTypes";
 import { useEffect, useState } from "react";
 import { useMatches } from "react-router-dom";
@@ -40,19 +48,21 @@ export const CheckRow = ({ check }: { check: Check }) => {
         {check.result === "pass" ? "PASS" : "FAIL"}
       </td>
       <td>
-        <button onClick={() => setShowDetails(true)}>Open</button>
-        {/* TODO: Beautify popup / move to a dedicated page */}
-        {showDetails && (
-          <div className="detailOverlay">
-            <div onClick={() => setShowDetails(false)}>
-              <i>Click anywhere to close.</i>
-              <h2>
-                {check.name} was evaluated in step {check.step.name}. Details:
-              </h2>
-              <pre>{JSON.stringify(check.details, null, 2)}</pre>
-            </div>
-          </div>
-        )}
+        <Button onClick={() => setShowDetails(true)}>Open</Button>
+        <Dialog
+          fullWidth
+          maxWidth="xl"
+          onClose={() => setShowDetails(false)}
+          open={showDetails}
+        >
+          <DialogContent>
+            <Typography variant="h2" gutterBottom>
+              {check.name} was evaluated in step {check.step.name}
+            </Typography>
+            <Typography>Details:</Typography>
+            <pre>{JSON.stringify(check.details, null, 2)}</pre>
+          </DialogContent>
+        </Dialog>
       </td>
     </tr>
   );
@@ -84,7 +94,7 @@ export const ChildCapabilityRow = ({
   return (
     <tr>
       <td colSpan={2}>
-        <Link to={path}>
+        <Link to={path} component={RouterLink}>
           {capability.name} ({capability.participant_id})
         </Link>
       </td>
@@ -139,7 +149,7 @@ export const CapabilityDebug = ({ capability }: { capability: Capability }) => {
 };
 
 type CrumbHandle = { crumb: () => ReactNode };
-function Breadcrumbs() {
+function CapabolityBreadcrumbs() {
   const matches = useMatches();
   const crumbs = matches
     // first get rid of any matches that don't have handle and crumb
@@ -150,16 +160,7 @@ function Breadcrumbs() {
     .map((match) => (match.handle as CrumbHandle).crumb())
     .reverse();
 
-  return (
-    <div>
-      {crumbs.map((crumb, index) => (
-        <span key={index}>
-          {crumb}
-          {index === crumbs.length - 1 ? "" : " <= "}
-        </span>
-      ))}
-    </div>
-  );
+  return <Breadcrumbs separator="<=">{crumbs}</Breadcrumbs>;
 }
 
 export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
@@ -168,7 +169,7 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
   }
   return (
     <>
-      <Breadcrumbs />
+      <CapabolityBreadcrumbs />
       <table>
         <thead>
           <tr>
