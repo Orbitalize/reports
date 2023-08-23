@@ -1,12 +1,18 @@
 import { Link as RouterLink } from "react-router-dom";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Breadcrumbs,
   Button,
-  Link,
+  Chip,
   Dialog,
   DialogContent,
+  Link,
   Typography,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import { Capability, Check, Requirement } from "./capabilityTypes";
 import { useEffect, useState } from "react";
 import { useMatches } from "react-router-dom";
@@ -26,50 +32,122 @@ export const CheckLabel = ({
   return docUrl ? <Link href={docUrl}>{name}</Link> : <>{name}</>;
 };
 
-export const CheckRow = ({ check }: { check: Check }) => {
+const getCheckId = (check: Check): string => {
+  return [
+    check.scenario.name,
+    check.case.name,
+    check.step.name,
+    check.name,
+  ].join("-");
+};
+
+const CheckStatusTag = ({ check }: { check: Check }) => {
   const [showDetails, setShowDetails] = useState(false);
+  return (
+    <div>
+      <Chip
+        label={check.result === "pass" ? "PASS" : "FAIL"}
+        color={check.result === "pass" ? "success" : "error"}
+        onClick={() => setShowDetails(true)}
+      />
+      <Dialog
+        fullWidth
+        maxWidth="xl"
+        onClose={() => setShowDetails(false)}
+        open={showDetails}
+      >
+        <DialogContent>
+          <Typography variant="h2" gutterBottom>
+            {check.name} was evaluated in step {check.step.name}
+          </Typography>
+          <Typography>Details:</Typography>
+          <pre>{JSON.stringify(check.details, null, 2)}</pre>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+const AggregatedStatusTag = ({ checks }: { checks: Check[] }) => {
+  const successfulChecks = checks.reduce(
+    (acc, check) => acc + (check.result === "pass" ? 1 : 0),
+    0
+  );
+  const pass = successfulChecks === checks.length;
+  return (
+    <Chip label={pass ? "PASS" : "FAIL"} color={pass ? "success" : "error"} />
+  );
+};
+
+const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
   const separator = " :: ";
   const checkSource = (
     <>
-      <CheckLabel {...check.scenario} />
+      <CheckLabel {...checks[0].scenario} />
       {separator}
-      <CheckLabel {...check.case} />
+      <CheckLabel {...checks[0].case} />
       {separator}
-      <CheckLabel {...check.step} />
+      <CheckLabel {...checks[0].step} />
       {separator}
-      <CheckLabel name={check.name} />
+      <CheckLabel name={checks[0].name} />
     </>
   );
-
   return (
     <tr>
-      <td>{checkSource}</td>
-      <td className={check.result === "pass" ? "pass" : "fail"}>
-        {check.result === "pass" ? "PASS" : "FAIL"}
-      </td>
-      <td>
-        <Button onClick={() => setShowDetails(true)}>Open</Button>
-        <Dialog
-          fullWidth
-          maxWidth="xl"
-          onClose={() => setShowDetails(false)}
-          open={showDetails}
-        >
-          <DialogContent>
-            <Typography variant="h2" gutterBottom>
-              {check.name} was evaluated in step {check.step.name}
-            </Typography>
-            <Typography>Details:</Typography>
-            <pre>{JSON.stringify(check.details, null, 2)}</pre>
-          </DialogContent>
-        </Dialog>
+      <td colSpan={2} style={{ padding: 0 }}>
+        <Accordion square>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+                display: "flex",
+                justifyContent: "space-between",
+              },
+            }}
+          >
+            <Typography>{checkSource}</Typography>
+            <AggregatedStatusTag checks={checks} />
+          </AccordionSummary>
+          <AccordionDetails>
+            <div className="checkStatusGrid">
+              {checks.map((c) => (
+                <CheckStatusTag check={c} />
+              ))}
+            </div>
+          </AccordionDetails>
+        </Accordion>
       </td>
     </tr>
   );
 };
 
+const checkAggregatedRows = (requirement: Requirement) => {
+  // Group checks by ID
+  const aggregatedChecks = requirement.checks.reduce((acc, check) => {
+    const checkId = getCheckId(check);
+    if (checkId in acc) {
+      return { ...acc, [checkId]: [...acc[checkId], check] };
+    } else {
+      return { ...acc, [checkId]: [check] };
+    }
+  }, {} as Record<string, Check[]>);
+
+  // For each check, display a checkRow
+  // Aggregate titles by check ID
+  return Object.keys(aggregatedChecks)
+    .map((key) => {
+      const checks = aggregatedChecks[key];
+      return <CheckAggregateRow checks={checks} />;
+    })
+    .flat();
+};
+
 const requirementRow = (requirement: Requirement) => {
-  const checks = requirement.checks.map((c) => <CheckRow check={c} />);
+  console.log(requirement);
+  // const checks = requirement.checks.map((c) => <CheckRow check={c} />);
+  const checks = checkAggregatedRows(requirement);
   const requirementHeader = (
     <tr>
       <td rowSpan={checks.length + 1}>{requirement.name}</td>
@@ -175,9 +253,7 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
           <tr>
             <th>Capability</th>
             <th>Requirement</th>
-            <th>Test Check</th>
-            <th>Result</th>
-            <th>Details</th>
+            <th colSpan={2}>Test Check</th>
           </tr>
         </thead>
         <tbody>
