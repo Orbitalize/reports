@@ -23,7 +23,7 @@ export const CheckLabel = ({
   name: string;
   docUrl?: string;
 }) => {
-  return docUrl ? <a href={docUrl}>{name}</a> : <>{name}</>;
+  return docUrl ? <Link href={docUrl}>{name}</Link> : <>{name}</>;
 };
 
 export const CheckRow = ({ check }: { check: Check }) => {
