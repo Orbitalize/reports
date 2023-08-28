@@ -3,19 +3,26 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  AppBar,
+  Box,
   Breadcrumbs,
   Chip,
   Dialog,
   DialogContent,
+  IconButton,
   Link,
+  Toolbar,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 import { Capability, Check, Requirement } from "./capabilityTypes";
 import { useEffect, useState } from "react";
 import { useMatches } from "react-router-dom";
 import { ReactNode } from "react";
+import { useTheme } from "../ThemeContext";
 
 type CapabilityTableProps = {
   capability: Capability;
@@ -110,11 +117,11 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
             <AggregatedStatusTag checks={checks} />
           </AccordionSummary>
           <AccordionDetails>
-            <div className="checkStatusGrid">
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               {checks.map((c) => (
                 <CheckStatusTag check={c} />
               ))}
-            </div>
+            </Box>
           </AccordionDetails>
         </Accordion>
       </td>
@@ -174,7 +181,7 @@ export const ChildCapabilityRow = ({
           {capability.name} ({capability.participant_id})
         </Link>
       </td>
-      <td>
+      <td style={{ padding: 8 }}>
         <Chip
           label={pass ? "PASS" : "FAIL"}
           color={pass ? "success" : "error"}
@@ -241,25 +248,51 @@ function CapabilityBreadcrumbs() {
 }
 
 export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
+  const { colorMode, toggleColorMode } = useTheme();
   if (!capability) {
     return <span>Capability not found</span>;
   }
   return (
     <>
-      <CapabilityBreadcrumbs />
-      <table>
-        <thead>
-          <tr>
-            <th>Capability</th>
-            <th>Requirement</th>
-            <th>Test Check</th>
-          </tr>
-        </thead>
-        <tbody>
-          <CapabilityRows capability={capability} />
-        </tbody>
-      </table>
-      <CapabilityDebug capability={capability} />
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            InterUSS report explorer
+          </Typography>
+          <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color="inherit">
+            {colorMode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Box
+        component="main"
+        sx={{
+          backgroundColor: (theme) =>
+            theme.palette.mode === "light"
+              ? theme.palette.grey[100]
+              : theme.palette.grey[900],
+          flexGrow: 1,
+          height: "100vh",
+          overflow: "auto",
+          padding: 8,
+        }}
+      >
+        <CapabilityBreadcrumbs />
+        <br />
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Requirement</th>
+              <th>Test Check</th>
+            </tr>
+          </thead>
+          <tbody>
+            <CapabilityRows capability={capability} />
+          </tbody>
+        </table>
+        <CapabilityDebug capability={capability} />
+      </Box>
     </>
   );
 };

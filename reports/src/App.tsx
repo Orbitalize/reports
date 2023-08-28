@@ -1,11 +1,13 @@
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import { useReport } from "./capability/useReport";
-import "./App.css";
+import { CustomThemeProvider } from "./ThemeContext";
 
 function App() {
   // FIXME use the report from the config
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const configuration = JSON.parse(document.getElementById("interuss_report_json")?.innerHTML || "{}");
+  const configuration = JSON.parse(
+    document.getElementById("interuss_report_json")?.innerHTML || "{}"
+  );
   console.log("Configuration:", configuration);
 
   const { loading, error, report, nav } = useReport(configuration);
@@ -16,7 +18,11 @@ function App() {
     return !error ? <div>Report not found</div> : <div>{error}</div>;
   }
   const router = createHashRouter(nav);
-  return <RouterProvider router={router} />;
+  return (
+    <CustomThemeProvider>
+      <RouterProvider router={router} />;
+    </CustomThemeProvider>
+  );
 }
 
 export default App;
