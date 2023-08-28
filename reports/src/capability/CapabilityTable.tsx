@@ -94,7 +94,7 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
   );
   return (
     <tr>
-      <td colSpan={2} style={{ padding: 0 }}>
+      <td style={{ padding: 0 }}>
         <Accordion square>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -151,7 +151,7 @@ const requirementRow = (requirement: Requirement) => {
   const requirementHeader = (
     <tr>
       <td rowSpan={checks.length + 1}>{requirement.name}</td>
-      {!checks.length && <td colSpan={3}>Not tested</td>}
+      {!checks.length && <td>Not tested</td>}
     </tr>
   );
 
@@ -169,18 +169,19 @@ export const ChildCapabilityRow = ({
   capability: Capability;
   path: string;
 }) => {
+  const pass = capability.result === "pass";
   return (
     <tr>
-      <td colSpan={2}>
+      <td>
         <Link to={path} component={RouterLink}>
           {capability.name} ({capability.participant_id})
         </Link>
       </td>
-      <td
-        className={capability.result === "pass" ? "pass" : "fail"}
-        colSpan={2}
-      >
-        {capability.result === "pass" ? "PASS" : "FAIL"}
+      <td>
+        <Chip
+          label={pass ? "PASS" : "FAIL"}
+          color={pass ? "success" : "error"}
+        />
       </td>
     </tr>
   );
@@ -189,8 +190,8 @@ export const ChildCapabilityRow = ({
 const ChildCapabilityHeader = () => {
   return (
     <tr>
-      <th colSpan={2}>Child Capability</th>
-      <th colSpan={2}>Result</th>
+      <th>Child Capability</th>
+      <th>Result</th>
     </tr>
   );
 };
@@ -254,7 +255,7 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
           <tr>
             <th>Capability</th>
             <th>Requirement</th>
-            <th colSpan={2}>Test Check</th>
+            <th>Test Check</th>
           </tr>
         </thead>
         <tbody>
