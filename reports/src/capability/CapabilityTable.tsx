@@ -149,7 +149,8 @@ export const CapabilityDebug = ({ capability }: { capability: Capability }) => {
 };
 
 type CrumbHandle = { crumb: () => ReactNode };
-function CapabolityBreadcrumbs() {
+
+function CapabilityBreadcrumbs() {
   const matches = useMatches();
   const crumbs = matches
     // first get rid of any matches that don't have handle and crumb
@@ -169,7 +170,7 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
   }
   return (
     <>
-      <CapabolityBreadcrumbs />
+      <CapabilityBreadcrumbs />
       <table>
         <thead>
           <tr>
