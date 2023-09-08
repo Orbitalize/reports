@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     tags:
-      - '*'
+      - "*"
 jobs:
   build_and_release:
     name: Build and Release
@@ -13,7 +13,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '20.x'
+          node-version: "20.5"
       - name: Build
         run: scripts/build.sh
       - name: Release
