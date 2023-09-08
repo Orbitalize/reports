@@ -101,7 +101,7 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
   return (
     <tr>
       <td style={{ padding: 0 }}>
-        <Accordion square>
+        <Accordion square disableGutters>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1a-content"
