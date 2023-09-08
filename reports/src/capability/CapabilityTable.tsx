@@ -144,8 +144,6 @@ const checkAggregatedRows = (requirement: Requirement) => {
 };
 
 const requirementRow = (requirement: Requirement) => {
-  console.log(requirement);
-  // const checks = requirement.checks.map((c) => <CheckRow check={c} />);
   const checks = checkAggregatedRows(requirement);
   const requirementHeader = (
     <tr>
