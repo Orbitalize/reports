@@ -20,7 +20,7 @@ function App() {
   const router = createHashRouter(nav);
   return (
     <CustomThemeProvider>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </CustomThemeProvider>
   );
 }

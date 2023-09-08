@@ -181,7 +181,7 @@ export const ChildCapabilityRow = ({
           {capability.name} ({capability.participant_id})
         </Link>
       </td>
-      <td style={{ padding: 8 }}>
+      <td>
         <Chip
           label={pass ? "PASS" : "FAIL"}
           color={pass ? "success" : "error"}
@@ -254,7 +254,7 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
   }
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             InterUSS report explorer
@@ -271,10 +271,11 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
             theme.palette.mode === "light"
               ? theme.palette.grey[100]
               : theme.palette.grey[900],
-          flexGrow: 1,
-          height: "100vh",
-          overflow: "auto",
+          // flexGrow: 1,
+          // height: "100vh",
+          // overflow: "auto",
           padding: 8,
+          paddingTop: 10,
         }}
       >
         <CapabilityBreadcrumbs />
