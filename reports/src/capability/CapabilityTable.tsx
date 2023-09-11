@@ -3,29 +3,26 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  AppBar,
   Box,
   Breadcrumbs,
   Chip,
   Dialog,
   DialogContent,
-  IconButton,
   Link,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 import { Capability, Check, Requirement } from "./capabilityTypes";
 import { useEffect, useState } from "react";
 import { useMatches } from "react-router-dom";
 import { ReactNode } from "react";
-import { useTheme } from "../ThemeContext";
+import { Report } from "./capabilityTypes";
+import { CapabilityTableHeader } from "./CapabilityTableHeader";
 
 type CapabilityTableProps = {
   capability: Capability;
+  report: Report;
 };
 
 export const CheckLabel = ({
@@ -212,14 +209,7 @@ export const CapabilityRows = ({ capability }: { capability: Capability }) => {
     : [];
 
   const allRows = [...requirements, ...childTable];
-  return [
-    <tr>
-      <td rowSpan={allRows.length + 1}>
-        {capability.name} ({capability.participant_id})
-      </td>
-    </tr>,
-    ...allRows,
-  ];
+  return [...allRows];
 };
 
 export const CapabilityDebug = ({ capability }: { capability: Capability }) => {
@@ -247,23 +237,16 @@ function CapabilityBreadcrumbs() {
   return <Breadcrumbs separator="<=">{crumbs}</Breadcrumbs>;
 }
 
-export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
-  const { colorMode, toggleColorMode } = useTheme();
+export const CapabilityTable = ({
+  capability,
+  report,
+}: CapabilityTableProps) => {
   if (!capability) {
     return <span>Capability not found</span>;
   }
   return (
     <>
-      <AppBar position="fixed">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            InterUSS report explorer
-          </Typography>
-          <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color="inherit">
-            {colorMode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      <CapabilityTableHeader capability={capability} report={report} />
       <Box
         component="main"
         sx={{
@@ -283,7 +266,6 @@ export const CapabilityTable = ({ capability }: CapabilityTableProps) => {
         <table>
           <thead>
             <tr>
-              <th>Capability</th>
               <th>Requirement</th>
               <th>Test Check</th>
             </tr>

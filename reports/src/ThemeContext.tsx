@@ -6,11 +6,13 @@ import {
   Theme,
   ThemeProvider,
   createTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   PropsWithChildren,
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -29,7 +31,14 @@ export const useTheme = () => useContext(ThemeContext);
 export const CustomThemeProvider = ({
   children,
 }: PropsWithChildren<unknown>) => {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
   const [mode, setMode] = useState<PaletteMode>("light");
+
+  useEffect(
+    () => setMode(prefersDarkMode ? "dark" : "light"),
+    [prefersDarkMode]
+  );
 
   const theme = useMemo(
     () =>
