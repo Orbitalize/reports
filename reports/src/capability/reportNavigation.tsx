@@ -38,8 +38,8 @@ export const getNavFromCapability = (
     {
       path: path,
       handle: {
-        crumb: () => (
-          <Link to={fullPath} component={RouterLink}>
+        crumb: (index?: number | string) => (
+          <Link key={index} to={fullPath} component={RouterLink}>
             {capability.name}
           </Link>
         ),

@@ -35,50 +35,19 @@ export const CapabilityTableHeader = ({
     navigate(`/${id}`);
   };
   return (
-    <AppBar position="fixed" enableColorOnDark>
+    <AppBar position="fixed" enableColorOnDark color="default">
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           {report.name} - {capability.name}
         </Typography>
-        <FormControl
-          size="small"
-          sx={(theme) => ({
-            color: theme.palette.primary.contrastText,
-            bgColor: theme.palette.primary.main,
-          })}
-        >
-          <InputLabel
-            id="ussp-select-label"
-            sx={(theme) => ({
-              color: theme.palette.primary.contrastText,
-              "&.Mui-focused": {
-                color: theme.palette.primary.contrastText,
-              },
-            })}
-          >
-            USSP
-          </InputLabel>
+        <FormControl size="small">
+          <InputLabel id="ussp-select-label">USSP</InputLabel>
 
           <Select
             label="USSP"
             value={ussp}
             onChange={handleUsspSelect}
             labelId="ussp-select-label"
-            sx={(theme) => ({
-              color: theme.palette.primary.contrastText,
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.contrastText,
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.contrastText,
-              },
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.contrastText,
-              },
-              "& .MuiSvgIcon-root": {
-                color: theme.palette.primary.contrastText,
-              },
-            })}
           >
             {report.participants?.map((p, i) => (
               <MenuItem value={i} key={i}>

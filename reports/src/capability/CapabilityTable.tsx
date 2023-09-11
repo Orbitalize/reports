@@ -1,7 +1,7 @@
 import { Box, Breadcrumbs, Typography } from "@mui/material";
 import { Capability } from "./capabilityTypes";
 import { useMatches } from "react-router-dom";
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { Report } from "./capabilityTypes";
 import { CapabilityTableHeader } from "./CapabilityTableHeader";
 import { RequirementTable } from "./RequirementTable";
@@ -14,16 +14,20 @@ type CapabilityTableProps = {
 
 type CrumbHandle = { crumb: () => ReactNode };
 
-function CapabilityBreadcrumbs() {
+function CapabilityBreadcrumbs({ capability }: { capability: Capability }) {
   const matches = useMatches();
-  const crumbs = matches
+  const parentCrumbs = matches
     // first get rid of any matches that don't have handle and crumb
     .filter((match) =>
       Boolean((match.handle as CrumbHandle | undefined)?.crumb)
     )
     .slice(0, -1) // Skip last crumb
-    .map((match) => (match.handle as CrumbHandle).crumb())
+    .map((match, i) => (match.handle as CrumbHandle).crumb(i))
     .reverse();
+
+  const here = <Typography key={-1}>{capability.name}</Typography>;
+  const crumbs = [here, ...parentCrumbs];
+  console.log(crumbs);
 
   return <Breadcrumbs separator="<=">{crumbs}</Breadcrumbs>;
 }
@@ -50,7 +54,7 @@ export const CapabilityTable = ({
           paddingTop: 10,
         }}
       >
-        <CapabilityBreadcrumbs />
+        <CapabilityBreadcrumbs capability={capability} />
         <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
           Requirements
         </Typography>
