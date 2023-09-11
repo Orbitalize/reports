@@ -1,7 +1,7 @@
 import { Box, Breadcrumbs, Typography } from "@mui/material";
 import { Capability } from "./capabilityTypes";
 import { useMatches } from "react-router-dom";
-import { Fragment, ReactNode } from "react";
+import { ReactNode } from "react";
 import { Report } from "./capabilityTypes";
 import { CapabilityTableHeader } from "./CapabilityTableHeader";
 import { RequirementTable } from "./RequirementTable";
@@ -10,6 +10,7 @@ import { ChildCapabilityTable } from "./ChildCapabilityTable";
 type CapabilityTableProps = {
   capability: Capability;
   report: Report;
+  empty?: boolean;
 };
 
 type CrumbHandle = { crumb: () => ReactNode };
@@ -35,6 +36,7 @@ function CapabilityBreadcrumbs({ capability }: { capability: Capability }) {
 export const CapabilityTable = ({
   capability,
   report,
+  empty,
 }: CapabilityTableProps) => {
   if (!capability) {
     return <span>Capability not found</span>;
@@ -54,15 +56,23 @@ export const CapabilityTable = ({
           paddingTop: 10,
         }}
       >
-        <CapabilityBreadcrumbs capability={capability} />
-        <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
-          Requirements
-        </Typography>
-        <RequirementTable capability={capability} />
-        <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
-          Child capabilities
-        </Typography>
-        <ChildCapabilityTable capability={capability} />
+        {empty ? (
+          <Typography variant="overline">
+            Select a participant in the top bar
+          </Typography>
+        ) : (
+          <>
+            <CapabilityBreadcrumbs capability={capability} />
+            <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
+              Requirements
+            </Typography>
+            <RequirementTable capability={capability} />
+            <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
+              Child capabilities
+            </Typography>
+            <ChildCapabilityTable capability={capability} />
+          </>
+        )}
       </Box>
     </>
   );

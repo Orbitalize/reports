@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { ReportsReportTestRunReport } from "../types/TestRunReport";
 import { RouteObject } from "react-router-dom";
 import { parseReport } from "./reportParser";
-import { getNavFromCapability } from "./reportNavigation";
+import { getNavFromCapability, getNavFromReport } from "./reportNavigation";
+import { parse } from "jsonpath";
 
 const reportUrl = "/report_uspace.json";
 
@@ -20,20 +21,15 @@ type UseReportReturn = {
 export const useReport = ({
   report: _report,
 }: UseReportProps): UseReportReturn => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>();
   const [report, setReport] = useState<ReportsReportTestRunReport | undefined>(
     _report
   );
 
   useEffect(() => {
-    if (_report) {
-      setReport(_report as ReportsReportTestRunReport);
-      setLoading(false);
-      return;
-    }
-
     const fetchReport = async () => {
+      setLoading(true);
       try {
         const res = await fetch(reportUrl);
         if (res.status === 404) {

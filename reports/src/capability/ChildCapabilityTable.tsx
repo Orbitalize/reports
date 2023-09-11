@@ -25,7 +25,7 @@ export const ChildCapabilityRow = ({
     <TableRow>
       <TableCell>
         <Link to={path} component={RouterLink}>
-          {capability.name} ({capability.participant_id})
+          {capability.name}
         </Link>
       </TableCell>
       <TableCell>

@@ -1,4 +1,4 @@
-import { Link } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { Link as RouterLink, RouteObject } from "react-router-dom";
 import { Capability } from "./capabilityTypes";
 import { CapabilityTable } from "./CapabilityTable";
@@ -47,7 +47,13 @@ export const getNavFromCapability = (
       children: [
         {
           index: true,
-          element: <CapabilityTable capability={capability} report={report} />,
+          element: (
+            <CapabilityTable
+              capability={capability}
+              report={report}
+              empty={path === "/"}
+            />
+          ),
         },
         ...children,
       ],
