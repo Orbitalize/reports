@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ReportsReportTestRunReport } from "../types/TestRunReport";
 import { RouteObject } from "react-router-dom";
 import { parseReport } from "./reportParser";
-import { getNavFromCapability, getNavFromReport } from "./reportNavigation";
-import { parse } from "jsonpath";
+import { getNavFromCapability } from "./reportNavigation";
 
 const reportUrl = "/report_uspace.json";
 

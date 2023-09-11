@@ -3,8 +3,6 @@ import { useReport } from "./capability/useReport";
 import { CustomThemeProvider } from "./ThemeContext";
 
 function App() {
-  // FIXME use the report from the config
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const configuration = JSON.parse(
     document.getElementById("interuss_report_json")?.innerHTML || "{}"
   );

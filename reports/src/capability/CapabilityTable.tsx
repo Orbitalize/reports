@@ -13,7 +13,7 @@ type CapabilityTableProps = {
   empty?: boolean;
 };
 
-type CrumbHandle = { crumb: () => ReactNode };
+type CrumbHandle = { crumb: (i?: number | string) => ReactNode };
 
 function CapabilityBreadcrumbs({ capability }: { capability: Capability }) {
   const matches = useMatches();

@@ -1,4 +1,4 @@
-import { Link, Typography } from "@mui/material";
+import { Link } from "@mui/material";
 import { Link as RouterLink, RouteObject } from "react-router-dom";
 import { Capability } from "./capabilityTypes";
 import { CapabilityTable } from "./CapabilityTable";
