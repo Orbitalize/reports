@@ -63,11 +63,11 @@ export const CapabilityTable = ({
         ) : (
           <>
             <CapabilityBreadcrumbs capability={capability} />
-            <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
+            <Typography variant="h4" gutterBottom sx={{ marginTop: 1 }}>
               Requirements
             </Typography>
             <RequirementTable capability={capability} />
-            <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
+            <Typography variant="h4" gutterBottom sx={{ marginTop: 1 }}>
               Child capabilities
             </Typography>
             <ChildCapabilityTable capability={capability} />

@@ -56,9 +56,8 @@ const AggregatedStatusTag = ({ checks }: { checks: Check[] }) => {
     0
   );
   const pass = successfulChecks === checks.length;
-  return (
-    <Chip label={pass ? "PASS" : "FAIL"} color={pass ? "success" : "error"} />
-  );
+  const label = pass ? "PASS" : "FAIL";
+  return <Chip label={label} color={pass ? "success" : "error"} />;
 };
 
 const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
