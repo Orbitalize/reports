@@ -68,7 +68,7 @@ export const CapabilityTable = ({
         {participantMissing ? (
           <>
             <Typography variant="h3" gutterBottom>
-              Participant
+              {report.participants?.length ? "Participants" : "Participant"}
             </Typography>
             <Paper>
               <List>
