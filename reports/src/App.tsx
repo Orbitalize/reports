@@ -6,6 +6,8 @@ function App() {
   const configuration = JSON.parse(
     document.getElementById("interuss_report_json")?.innerHTML || "{}"
   );
+  console.log("Configuration:", configuration);
+
   const { loading, error, report, nav } = useReport(configuration);
   if (loading) {
     return <div>Loading report...</div>;
