@@ -44,7 +44,7 @@ export const ChildCapabilityTable = ({
   capability: Capability;
 }) => {
   const childCapabilities = capability.childCapabilities.map((c, i) => (
-    <ChildCapabilityRow capability={c} path={i.toString()} />
+    <ChildCapabilityRow key={c.name} capability={c} path={i.toString()} />
   ));
 
   if (!childCapabilities.length) {

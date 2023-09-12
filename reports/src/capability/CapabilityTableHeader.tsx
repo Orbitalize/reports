@@ -30,7 +30,6 @@ export const CapabilityTableHeader = ({
   const ussp = parseInt(location.pathname.split("/")[1]) || 0;
 
   const handleUsspSelect = (event: SelectChangeEvent<number>) => {
-    console.log(event.target.value);
     const id = event.target.value;
     navigate(`/${id}`);
   };

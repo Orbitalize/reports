@@ -91,8 +91,8 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
           </AccordionSummary>
           <AccordionDetails>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {checks.map((c) => (
-                <CheckStatusTag check={c} />
+              {checks.map((c, i) => (
+                <CheckStatusTag check={c} key={i} />
               ))}
             </Box>
           </AccordionDetails>
@@ -127,14 +127,14 @@ const checkAggregatedRows = (requirement: Requirement) => {
   return Object.keys(aggregatedChecks)
     .map((key) => {
       const checks = aggregatedChecks[key];
-      return <CheckAggregateRow checks={checks} />;
+      return <CheckAggregateRow key={key} checks={checks} />;
     })
     .flat();
 };
 const requirementRow = (requirement: Requirement) => {
   const checks = checkAggregatedRows(requirement);
   const requirementHeader = (
-    <TableRow>
+    <TableRow key={requirement.name}>
       <TableCell rowSpan={checks.length + 1}>{requirement.name}</TableCell>
       {!checks.length && <TableCell>Not tested</TableCell>}
     </TableRow>

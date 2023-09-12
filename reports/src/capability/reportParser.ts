@@ -263,9 +263,7 @@ const _parseReport = (report: ReportsReportTestSuiteActionReport): Report => {
 
 export const parseReport = (report: ReportsReportTestRunReport): Report => {
   const startTime = new Date().getTime();
-  console.log("Input Report", report);
   const parsed = _parseReport(report.report);
-  console.log("Parsed report", parsed);
   console.info(
     "[performance] Report rendered in ",
     new Date().getTime() - startTime,
