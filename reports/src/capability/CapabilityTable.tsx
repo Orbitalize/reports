@@ -1,6 +1,15 @@
-import { Box, Breadcrumbs, Typography } from "@mui/material";
+import {
+  Box,
+  Breadcrumbs,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { Capability } from "./capabilityTypes";
-import { useMatches } from "react-router-dom";
+import { useMatches, useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { Report } from "./capabilityTypes";
 import { CapabilityTableHeader } from "./CapabilityTableHeader";
@@ -37,6 +46,7 @@ export const CapabilityTable = ({
   report,
   participantMissing,
 }: CapabilityTableProps) => {
+  const navigate = useNavigate();
   if (!capability) {
     return <span>Capability not found</span>;
   }
@@ -56,9 +66,22 @@ export const CapabilityTable = ({
         }}
       >
         {participantMissing ? (
-          <Typography variant="overline">
-            Select a participant in the top bar
-          </Typography>
+          <>
+            <Typography variant="h3" gutterBottom>
+              {report.participants?.length ? "Participants" : "Participant"}
+            </Typography>
+            <Paper>
+              <List>
+                {report.participants?.map((p, i) => (
+                  <ListItem key={i}>
+                    <ListItemButton onClick={() => navigate(`/${i}`)}>
+                      <ListItemText primary={p} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          </>
         ) : (
           <>
             <CapabilityBreadcrumbs capability={capability} />

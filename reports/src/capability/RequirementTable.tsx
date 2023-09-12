@@ -102,8 +102,9 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
   );
 };
 
-const getCheckId = (check: Check): string => {
+const getCheckId = (check: Check, requirementName: string): string => {
   return [
+    requirementName,
     check.scenario.name,
     check.case.name,
     check.step.name,
@@ -114,7 +115,7 @@ const getCheckId = (check: Check): string => {
 const checkAggregatedRows = (requirement: Requirement) => {
   // Group checks by ID
   const aggregatedChecks = requirement.checks.reduce((acc, check) => {
-    const checkId = getCheckId(check);
+    const checkId = getCheckId(check, requirement.name);
     if (checkId in acc) {
       return { ...acc, [checkId]: [...acc[checkId], check] };
     } else {
