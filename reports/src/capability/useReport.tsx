@@ -22,7 +22,9 @@ export const useReport = ({
 }: UseReportProps): UseReportReturn => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
-  const [report, setReport] = useState<ReportsReportTestRunReport | undefined>(_report);
+  const [report, setReport] = useState<ReportsReportTestRunReport | undefined>(
+    _report
+  );
 
   useEffect(() => {
     if (_report) {
@@ -35,11 +37,10 @@ export const useReport = ({
       try {
         const res = await fetch(reportUrl);
         if (res.status === 404) {
-          throw new Error("Report not found")
+          throw new Error("Report not found");
         }
         const json = await res.json();
         setReport(json as ReportsReportTestRunReport);
-
       } catch (err) {
         console.error(err);
         setError(JSON.stringify(err));
@@ -55,8 +56,11 @@ export const useReport = ({
     [report]
   );
   const nav = useMemo(
-    () => (parsedReport ? getNavFromCapability(parsedReport.capability) : []),
+    () =>
+      parsedReport
+        ? getNavFromCapability(parsedReport.capability, parsedReport)
+        : [],
     [parsedReport]
   );
-  return {loading, error, report, nav};
+  return { loading, error, report, nav };
 };

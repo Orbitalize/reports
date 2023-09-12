@@ -10,7 +10,7 @@ import {
   ReportsReportTestSuiteActionReport,
   ReportsReportTestSuiteReport,
 } from "../types/TestRunReport";
-import {NotImplementedError} from "../utils/Errors";
+import { NotImplementedError } from "../utils/Errors";
 import {
   Capability,
   Check,
@@ -242,6 +242,10 @@ const parseActions = (
 const _parseReport = (report: ReportsReportTestSuiteActionReport): Report => {
   if (report.test_suite) {
     return {
+      name: report.test_suite.name,
+      participants: report.test_suite.capability_evaluations.map(
+        (c) => c.participant_id
+      ),
       capability: {
         name: "root",
         childCapabilities: parseActions(report),
