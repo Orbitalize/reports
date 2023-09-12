@@ -51,7 +51,7 @@ export const getNavFromCapability = (
             <CapabilityTable
               capability={capability}
               report={report}
-              empty={path === "/"}
+              participantMissing={path === "/"}
             />
           ),
         },

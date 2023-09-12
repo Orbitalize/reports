@@ -10,7 +10,7 @@ import { ChildCapabilityTable } from "./ChildCapabilityTable";
 type CapabilityTableProps = {
   capability: Capability;
   report: Report;
-  empty?: boolean;
+  participantMissing?: boolean;
 };
 
 type CrumbHandle = { crumb: (i?: number | string) => ReactNode };
@@ -35,7 +35,7 @@ function CapabilityBreadcrumbs({ capability }: { capability: Capability }) {
 export const CapabilityTable = ({
   capability,
   report,
-  empty,
+  participantMissing,
 }: CapabilityTableProps) => {
   if (!capability) {
     return <span>Capability not found</span>;
@@ -55,7 +55,7 @@ export const CapabilityTable = ({
           paddingTop: 10,
         }}
       >
-        {empty ? (
+        {participantMissing ? (
           <Typography variant="overline">
             Select a participant in the top bar
           </Typography>
