@@ -28,7 +28,6 @@ function CapabilityBreadcrumbs({ capability }: { capability: Capability }) {
 
   const here = <Typography key={-1}>{capability.name}</Typography>;
   const crumbs = [here, ...parentCrumbs];
-  console.log(crumbs);
 
   return <Breadcrumbs separator="<=">{crumbs}</Breadcrumbs>;
 }
