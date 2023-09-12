@@ -10,20 +10,24 @@ import { ChildCapabilityTable } from "./ChildCapabilityTable";
 type CapabilityTableProps = {
   capability: Capability;
   report: Report;
+  participantMissing?: boolean;
 };
 
-type CrumbHandle = { crumb: () => ReactNode };
+type CrumbHandle = { crumb: (i?: number | string) => ReactNode };
 
-function CapabilityBreadcrumbs() {
+function CapabilityBreadcrumbs({ capability }: { capability: Capability }) {
   const matches = useMatches();
-  const crumbs = matches
+  const parentCrumbs = matches
     // first get rid of any matches that don't have handle and crumb
     .filter((match) =>
       Boolean((match.handle as CrumbHandle | undefined)?.crumb)
     )
     .slice(0, -1) // Skip last crumb
-    .map((match) => (match.handle as CrumbHandle).crumb())
+    .map((match, i) => (match.handle as CrumbHandle).crumb(i))
     .reverse();
+
+  const here = <Typography key={-1}>{capability.name}</Typography>;
+  const crumbs = [here, ...parentCrumbs];
 
   return <Breadcrumbs separator="<=">{crumbs}</Breadcrumbs>;
 }
@@ -31,6 +35,7 @@ function CapabilityBreadcrumbs() {
 export const CapabilityTable = ({
   capability,
   report,
+  participantMissing,
 }: CapabilityTableProps) => {
   if (!capability) {
     return <span>Capability not found</span>;
@@ -50,15 +55,23 @@ export const CapabilityTable = ({
           paddingTop: 10,
         }}
       >
-        <CapabilityBreadcrumbs />
-        <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
-          Requirements
-        </Typography>
-        <RequirementTable capability={capability} />
-        <Typography variant="h3" gutterBottom sx={{ marginTop: 1 }}>
-          Child capabilities
-        </Typography>
-        <ChildCapabilityTable capability={capability} />
+        {participantMissing ? (
+          <Typography variant="overline">
+            Select a participant in the top bar
+          </Typography>
+        ) : (
+          <>
+            <CapabilityBreadcrumbs capability={capability} />
+            <Typography variant="h4" gutterBottom sx={{ marginTop: 1 }}>
+              Requirements
+            </Typography>
+            <RequirementTable capability={capability} />
+            <Typography variant="h4" gutterBottom sx={{ marginTop: 1 }}>
+              Child capabilities
+            </Typography>
+            <ChildCapabilityTable capability={capability} />
+          </>
+        )}
       </Box>
     </>
   );

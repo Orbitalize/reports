@@ -38,8 +38,8 @@ export const getNavFromCapability = (
     {
       path: path,
       handle: {
-        crumb: () => (
-          <Link to={fullPath} component={RouterLink}>
+        crumb: (index?: number | string) => (
+          <Link key={index} to={fullPath} component={RouterLink}>
             {capability.name}
           </Link>
         ),
@@ -47,7 +47,13 @@ export const getNavFromCapability = (
       children: [
         {
           index: true,
-          element: <CapabilityTable capability={capability} report={report} />,
+          element: (
+            <CapabilityTable
+              capability={capability}
+              report={report}
+              participantMissing={path === "/"}
+            />
+          ),
         },
         ...children,
       ],

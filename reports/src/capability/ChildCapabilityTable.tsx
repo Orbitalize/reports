@@ -1,6 +1,18 @@
-import { Chip, Link } from "@mui/material";
+import {
+  Chip,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { Capability } from "./capabilityTypes";
+
 export const ChildCapabilityRow = ({
   capability,
   path,
@@ -10,19 +22,19 @@ export const ChildCapabilityRow = ({
 }) => {
   const pass = capability.result === "pass";
   return (
-    <tr>
-      <td>
+    <TableRow>
+      <TableCell>
         <Link to={path} component={RouterLink}>
-          {capability.name} ({capability.participant_id})
+          {capability.name}
         </Link>
-      </td>
-      <td>
+      </TableCell>
+      <TableCell>
         <Chip
           label={pass ? "PASS" : "FAIL"}
           color={pass ? "success" : "error"}
         />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 };
 
@@ -35,15 +47,21 @@ export const ChildCapabilityTable = ({
     <ChildCapabilityRow capability={c} path={i.toString()} />
   ));
 
+  if (!childCapabilities.length) {
+    return <Typography variant="overline">No child capability</Typography>;
+  }
+
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Child Capability</th>
-          <th>Result</th>
-        </tr>
-      </thead>
-      <tbody>{childCapabilities}</tbody>
-    </table>
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Child Capability</TableCell>
+            <TableCell>Result</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>{childCapabilities}</TableBody>
+      </Table>
+    </TableContainer>
   );
 };

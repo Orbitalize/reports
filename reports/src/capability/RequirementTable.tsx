@@ -9,6 +9,13 @@ import {
   DialogContent,
   Typography,
   Link,
+  TableContainer,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -49,9 +56,8 @@ const AggregatedStatusTag = ({ checks }: { checks: Check[] }) => {
     0
   );
   const pass = successfulChecks === checks.length;
-  return (
-    <Chip label={pass ? "PASS" : "FAIL"} color={pass ? "success" : "error"} />
-  );
+  const label = pass ? "PASS" : "FAIL";
+  return <Chip label={label} color={pass ? "success" : "error"} />;
 };
 
 const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
@@ -68,13 +74,11 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
     </>
   );
   return (
-    <tr>
-      <td style={{ padding: 0 }}>
-        <Accordion square disableGutters>
+    <TableRow>
+      <TableCell style={{ padding: 0 }}>
+        <Accordion square disableGutters sx={{ boxShadow: "none" }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
             sx={{
               "& .MuiAccordionSummary-content": {
                 display: "flex",
@@ -93,8 +97,8 @@ const CheckAggregateRow = ({ checks }: { checks: Check[] }) => {
             </Box>
           </AccordionDetails>
         </Accordion>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 };
 
@@ -130,10 +134,10 @@ const checkAggregatedRows = (requirement: Requirement) => {
 const requirementRow = (requirement: Requirement) => {
   const checks = checkAggregatedRows(requirement);
   const requirementHeader = (
-    <tr>
-      <td rowSpan={checks.length + 1}>{requirement.name}</td>
-      {!checks.length && <td>Not tested</td>}
-    </tr>
+    <TableRow>
+      <TableCell rowSpan={checks.length + 1}>{requirement.name}</TableCell>
+      {!checks.length && <TableCell>Not tested</TableCell>}
+    </TableRow>
   );
 
   if (checks.length) {
@@ -153,18 +157,20 @@ export const RequirementTable = ({
     .flatMap((r) => requirementRow(r))
     .flat();
 
+  if (!requirements.length) {
+    return <Typography variant="overline">No requirements</Typography>;
+  }
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Requirement</th>
-          <th>Test Check</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* <CapabilityRows capability={capability} /> */}
-        {requirements}
-      </tbody>
-    </table>
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Requirement</TableCell>
+            <TableCell>Test Check</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>{requirements}</TableBody>
+      </Table>
+    </TableContainer>
   );
 };

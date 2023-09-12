@@ -20,20 +20,15 @@ type UseReportReturn = {
 export const useReport = ({
   report: _report,
 }: UseReportProps): UseReportReturn => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>();
   const [report, setReport] = useState<ReportsReportTestRunReport | undefined>(
     _report
   );
 
   useEffect(() => {
-    if (_report) {
-      setReport(_report as ReportsReportTestRunReport);
-      setLoading(false);
-      return;
-    }
-
     const fetchReport = async () => {
+      setLoading(true);
       try {
         const res = await fetch(reportUrl);
         if (res.status === 404) {
