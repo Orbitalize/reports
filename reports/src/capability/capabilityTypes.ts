@@ -5,20 +5,20 @@ export type Check = {
   scenario: {
     name: string;
     docUrl: string;
-  }
+  };
   case: {
     name: string;
     docUrl: string;
-  }
+  };
   step: {
     name: string;
     docUrl: string;
-  }
+  };
 
   name: string;
-  result: CheckResult
+  result: CheckResult;
   details: object; // Switch to a JSON path
-}
+};
 
 export type Requirement = {
   name: string;
@@ -35,4 +35,6 @@ export type Capability = {
 
 export type Report = {
   capability: Capability;
+  participants?: string[];
+  name?: string;
 };
