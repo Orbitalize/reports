@@ -48,7 +48,7 @@ export const ChildCapabilityTable = ({
   ));
 
   if (!childCapabilities.length) {
-    return <Typography variant="overline">No child capabilities</Typography>;
+    return <Typography variant="overline">No child capability</Typography>;
   }
 
   return (
