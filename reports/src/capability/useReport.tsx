@@ -28,6 +28,7 @@ export const useReport = ({
 
   useEffect(() => {
     const fetchReport = async () => {
+      if (_report) return;
       setLoading(true);
       try {
         const res = await fetch(reportUrl);
