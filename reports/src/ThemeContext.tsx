@@ -65,7 +65,7 @@ export const CustomThemeProvider = ({
         backgroundColor:
           theme.palette.mode === "light"
             ? theme.palette.grey[100]
-            : theme.palette.grey[900],
+            : theme.palette.grey[800],
       },
     };
   };
