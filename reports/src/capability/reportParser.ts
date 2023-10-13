@@ -240,12 +240,15 @@ const parseActions = (
 };
 
 const _parseReport = (report: ReportsReportTestSuiteActionReport): Report => {
-  if (report.test_suite) {
+  const testSuite: ReportsReportTestSuiteReport | undefined | null =
+    report.test_suite ||
+    report.action_generator?.actions.find((a) => !!a.test_suite)?.test_suite;
+  if (testSuite) {
     return {
-      name: report.test_suite.name,
-      participants: report.test_suite.capability_evaluations.map(
-        (c) => c.participant_id
-      ),
+      name: testSuite.name,
+      participants: testSuite.capability_evaluations
+        .map((c) => c.participant_id)
+        .sort(),
       capability: {
         name: "root",
         childCapabilities: parseActions(report),

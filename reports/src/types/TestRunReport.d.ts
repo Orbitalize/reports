@@ -17,8 +17,8 @@ export interface ReportsReportTestRunReport {
    * Signature of the test run including codebase version and all file signatures except excluded environmental files.
    *
    * This field can be used to identify that a particular expected test baseline (codebase, all non-environmental inputs)
-   * was run.  The value of this field is computed from codebase_version and all elements of file_signatures that are not
-   * explicitly excluded as environmental configuration.
+   * was run.  The value of this field is computed from codebase_version and all elements of the configuration that are
+   * not explicitly excluded as environmental configuration.
    */
   baseline_signature: string;
   /**
@@ -29,17 +29,474 @@ export interface ReportsReportTestRunReport {
    * Full commit hash of codebase used to run uss_qualifier
    */
   commit_hash: string;
-  report: ReportsReportTestSuiteActionReport;
   configuration: ConfigurationsConfigurationTestConfiguration;
   /**
-   * Mapping between the names of files loaded during test run and the SHA-1 hashes of those files' content.
+   * Signature of the environmental inputs of the configuration not included in the baseline signature.
    */
-  file_signatures: {
+  environment_signature: string;
+  report: ReportsReportTestSuiteActionReport;
+  [k: string]: unknown;
+}
+/**
+ * Configuration used to run uss_qualifier
+ */
+export interface ConfigurationsConfigurationTestConfiguration {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  action: SuitesDefinitionsTestSuiteActionDeclaration;
+  /**
+   * List of portions of the configuration that should not be considered when computing the test baseline signature (e.g., environmental definitions).
+   */
+  non_baseline_inputs?: string[] | null;
+  resources: ResourcesDefinitionsResourceCollection;
+  [k: string]: unknown;
+}
+/**
+ * The action this test configuration wants to run (usually a test suite)
+ */
+export interface SuitesDefinitionsTestSuiteActionDeclaration {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * If this field is populated, declaration of a generator that will produce 0 or more test suite actions
+   */
+  action_generator?: null | ActionGeneratorsDefinitionsActionGeneratorDefinition;
+  /**
+   * What to do if this action fails
+   */
+  on_failure?: "Continue" | "Abort";
+  /**
+   * If this field is populated, declaration of the test scenario to run
+   */
+  test_scenario?: null | ScenariosDefinitionsTestScenarioDeclaration;
+  /**
+   * If this field is populated, declaration of the test suite to run
+   */
+  test_suite?: null | SuitesDefinitionsTestSuiteDeclaration;
+  [k: string]: unknown;
+}
+/**
+ * monitoring.uss_qualifier.action_generators.definitions.ActionGeneratorDefinition, as defined in monitoring/uss_qualifier/action_generators/definitions.py
+ */
+export interface ActionGeneratorsDefinitionsActionGeneratorDefinition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Type of action generator
+   */
+  generator_type: string;
+  /**
+   * Mapping of the ID a resource will be known by in the child action -> the ID a resource is known by in the parent test suite.
+   *
+   * The child action resource ID <key> is supplied by the parent test suite resource ID <value>.
+   *
+   * Resources not included in this field will not be available to the child action.
+   *
+   * If the parent resource ID is suffixed with ? then the resource will not be required (and will not be populated for the child action when not present in the parent)
+   */
+  resources: {
     /**
      * Path to content that replaces the $ref
      */
     // $ref?: string;
     [k: string]: string;
+  };
+  /**
+   * Specification of action generator; format is the ActionGeneratorSpecificationType that corresponds to the `generator_type`
+   */
+  specification?: {
+    [k: string]: unknown;
+  };
+  [k: string]: unknown;
+}
+/**
+ * monitoring.uss_qualifier.scenarios.definitions.TestScenarioDeclaration, as defined in monitoring/uss_qualifier/scenarios/definitions.py
+ */
+export interface ScenariosDefinitionsTestScenarioDeclaration {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Mapping of the ID a resource in the test scenario -> the ID a resource is known by in the parent test suite.
+   *
+   * The additional argument to concrete test scenario constructor <key> is supplied by the parent suite resource <value>.
+   */
+  resources?: {
+    /**
+     * Path to content that replaces the $ref
+     */
+    // $ref?: string;
+    [k: string]: string;
+  } | null;
+  /**
+   * Type of test scenario.
+   */
+  scenario_type: string;
+  [k: string]: unknown;
+}
+/**
+ * monitoring.uss_qualifier.suites.definitions.TestSuiteDeclaration, as defined in monitoring/uss_qualifier/suites/definitions.py
+ */
+export interface SuitesDefinitionsTestSuiteDeclaration {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Definition of test suite internal to the configuration -- specified instead of `suite_type`.
+   */
+  suite_definition?: null | SuitesDefinitionsTestSuiteDefinition;
+  /**
+   * Mapping of the ID a resource will be known by in the child test suite -> the ID a resource is known by in the parent test suite.
+   *
+   * The child suite resource <key> is supplied by the parent suite resource <value>.
+   */
+  resources: {
+    /**
+     * Path to content that replaces the $ref
+     */
+    // $ref?: string;
+    [k: string]: string;
+  };
+  /**
+   * Type/location of test suite.  Usually expressed as the file name of the suite definition (without extension) qualified relative to the `uss_qualifier` folder
+   */
+  suite_type?: string | null;
+  [k: string]: unknown;
+}
+/**
+ * Schema for the definition of a test suite, analogous to the Python TestScenario subclass for scenarios
+ *
+ * monitoring.uss_qualifier.suites.definitions.TestSuiteDefinition, as defined in monitoring/uss_qualifier/suites/definitions.py
+ */
+export interface SuitesDefinitionsTestSuiteDefinition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Name of the test suite
+   */
+  name: string;
+  /**
+   * The scenario executed after all the actions that evaluates the test suite report. Must be a ReportEvaluationScenario.
+   */
+  report_evaluation_scenario?: null | ScenariosDefinitionsTestScenarioDeclaration;
+  /**
+   * Definitions of capabilities verified by this test suite for individual participants.
+   */
+  participant_verifiable_capabilities?:
+    | ReportsCapabilityDefinitionsParticipantCapabilityDefinition[]
+    | null;
+  /**
+   * Enumeration of the resources used by this test suite
+   */
+  resources: {
+    /**
+     * Path to content that replaces the $ref
+     */
+    // $ref?: string;
+    [k: string]: string;
+  };
+  /**
+   * The actions to take when running the test suite.  Components will be executed in order.
+   */
+  actions: SuitesDefinitionsTestSuiteActionDeclaration1[];
+  [k: string]: unknown;
+}
+/**
+ * monitoring.uss_qualifier.reports.capability_definitions.ParticipantCapabilityDefinition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsParticipantCapabilityDefinition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Human-readable description of the capability.
+   */
+  description: string;
+  verification_condition: ReportsCapabilityDefinitionsCapabilityVerificationCondition;
+  /**
+   * Human-readable name of the capability.
+   */
+  name: string;
+  /**
+   * Identifier of this capability, unique at the level in which this capability is defined.
+   */
+  id: string;
+  [k: string]: unknown;
+}
+/**
+ * Condition required in order to verify the capability.
+ */
+export interface ReportsCapabilityDefinitionsCapabilityVerificationCondition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  no_failed_checks?: null | ReportsCapabilityDefinitionsNoFailedChecksCondition;
+  any_conditions?: null | ReportsCapabilityDefinitionsAnyCondition;
+  requirements_checked?: null | ReportsCapabilityDefinitionsRequirementsCheckedCondition;
+  all_conditions?: null | ReportsCapabilityDefinitionsAllConditions;
+  capability_verified?: null | ReportsCapabilityDefinitionsCapabilityVerifiedCondition;
+  [k: string]: unknown;
+}
+/**
+ * Condition will only be satisfied if there are no applicable failed checks.
+ *
+ * For a capability to be verified for a participant, only checks including the participant's ID will be considered.
+ *
+ * monitoring.uss_qualifier.reports.capability_definitions.NoFailedChecksCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsNoFailedChecksCondition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  [k: string]: unknown;
+}
+/**
+ * Condition will be satisfied when any of the specified conditions are satisfied.
+ *
+ * Note that an empty list of conditions will result in an unsuccessful evaluation.
+ *
+ * monitoring.uss_qualifier.reports.capability_definitions.AnyCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsAnyCondition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  conditions: ReportsCapabilityDefinitionsCapabilityVerificationCondition1[];
+  [k: string]: unknown;
+}
+/**
+ * Specification of a single condition used to determine whether a capability should be verified.
+ *
+ * Exactly one field must be specified.
+ *
+ * monitoring.uss_qualifier.reports.capability_definitions.CapabilityVerificationCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsCapabilityVerificationCondition1 {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  no_failed_checks?: null | ReportsCapabilityDefinitionsNoFailedChecksCondition;
+  any_conditions?: null | ReportsCapabilityDefinitionsAnyCondition;
+  requirements_checked?: null | ReportsCapabilityDefinitionsRequirementsCheckedCondition;
+  all_conditions?: null | ReportsCapabilityDefinitionsAllConditions;
+  capability_verified?: null | ReportsCapabilityDefinitionsCapabilityVerifiedCondition;
+  [k: string]: unknown;
+}
+/**
+ * Condition will only be satisfied if at least one successful check exists for all specified requirements.
+ *
+ * Note that an empty collection of requirements will result in an unsuccessful evaluation.
+ *
+ * monitoring.uss_qualifier.reports.capability_definitions.RequirementsCheckedCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsRequirementsCheckedCondition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  checked: RequirementsDefinitionsRequirementCollection;
+  [k: string]: unknown;
+}
+/**
+ * Each requirement contained within this collection must be covered by at least one successful check.
+ */
+export interface RequirementsDefinitionsRequirementCollection {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * This collection includes all of the requirements in all of these requirement collections.
+   */
+  requirement_collections?:
+    | RequirementsDefinitionsRequirementCollection1[]
+    | null;
+  /**
+   * This collection includes all of these requirements.
+   */
+  requirements?: string[] | null;
+  /**
+   * This collection includes all requirements in all of these requirement sets.
+   */
+  requirement_sets?: string[] | null;
+  /**
+   * This collection does not include any of these requirements, despite all previous fields.
+   */
+  exclude?: null | RequirementsDefinitionsRequirementCollection1;
+  [k: string]: unknown;
+}
+/**
+ * monitoring.uss_qualifier.requirements.definitions.RequirementCollection, as defined in monitoring/uss_qualifier/requirements/definitions.py
+ */
+export interface RequirementsDefinitionsRequirementCollection1 {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * This collection includes all of the requirements in all of these requirement collections.
+   */
+  requirement_collections?:
+    | RequirementsDefinitionsRequirementCollection1[]
+    | null;
+  /**
+   * This collection includes all of these requirements.
+   */
+  requirements?: string[] | null;
+  /**
+   * This collection includes all requirements in all of these requirement sets.
+   */
+  requirement_sets?: string[] | null;
+  /**
+   * This collection does not include any of these requirements, despite all previous fields.
+   */
+  exclude?: null | RequirementsDefinitionsRequirementCollection1;
+  [k: string]: unknown;
+}
+/**
+ * Condition will only be satisfied when all specified conditions are satisfied.
+ *
+ * Note that an empty list of conditions will result in a successful evaluation.
+ *
+ * monitoring.uss_qualifier.reports.capability_definitions.AllConditions, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsAllConditions {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  conditions: ReportsCapabilityDefinitionsCapabilityVerificationCondition1[];
+  [k: string]: unknown;
+}
+/**
+ * Condition will be satisfied when the specified capability is verified.
+ *
+ * Note that a capability which do not declare any requirement will result in an unsuccessful evaluation.
+ *
+ * monitoring.uss_qualifier.reports.capability_definitions.CapabilityVerifiedCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
+ */
+export interface ReportsCapabilityDefinitionsCapabilityVerifiedCondition {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Location of report to inspect for the verification of the specified capability, relative to the report in which
+   * the capability is defined.  Implicit default value is "$" (look for verified capability in the report in which the
+   * dependant capability is defined).
+   *
+   * If this location resolves to multiple TestSuiteReports, then the capability must be verified in all resolved reports
+   * in order for this condition to be satisfied.  When this location resolves to artifacts that are not
+   * TestSuiteReports, those artifacts will be ignored.
+   *
+   * Note that capabilities are verified in the order they are defined.  So, if capability B defined in a particular
+   * location depends on whether capability A in that same location is granted, capability A must be defined before
+   * capability B is defined.  Also note that capability verifications are computed as test components are completed.
+   * Since a parent test component (e.g., test suite) is not complete until all of its child components are complete, a
+   * descendant test component's capability condition cannot depend on whether an ancestor's (e.g., parent's) capability
+   * is verified.
+   */
+  capability_location?: string | null;
+  /**
+   * List of identifier of capability that must be verified for this condition to be satisfied.
+   */
+  capability_ids: string[];
+  [k: string]: unknown;
+}
+/**
+ * Defines a step in the sequence of things to do for a test suite.
+ *
+ * Exactly one of `test_scenario`, `test_suite`, or `action_generator` must be specified.
+ *
+ * monitoring.uss_qualifier.suites.definitions.TestSuiteActionDeclaration, as defined in monitoring/uss_qualifier/suites/definitions.py
+ */
+export interface SuitesDefinitionsTestSuiteActionDeclaration1 {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * If this field is populated, declaration of a generator that will produce 0 or more test suite actions
+   */
+  action_generator?: null | ActionGeneratorsDefinitionsActionGeneratorDefinition;
+  /**
+   * What to do if this action fails
+   */
+  on_failure?: "Continue" | "Abort";
+  /**
+   * If this field is populated, declaration of the test scenario to run
+   */
+  test_scenario?: null | ScenariosDefinitionsTestScenarioDeclaration;
+  /**
+   * If this field is populated, declaration of the test suite to run
+   */
+  test_suite?: null | SuitesDefinitionsTestSuiteDeclaration;
+  [k: string]: unknown;
+}
+/**
+ * Declarations for resources used by the test suite
+ */
+export interface ResourcesDefinitionsResourceCollection {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Mapping of globally (within resource collection) unique name identifying a resource to the declaration of that resource
+   */
+  resource_declarations: {
+    /**
+     * Path to content that replaces the $ref
+     */
+    // $ref?: string;
+    [
+      k: string
+    ]: ResourcesDefinitionsResourceDeclaration;
+  };
+  [k: string]: unknown;
+}
+/**
+ * monitoring.uss_qualifier.resources.definitions.ResourceDeclaration, as defined in monitoring/uss_qualifier/resources/definitions.py
+ */
+export interface ResourcesDefinitionsResourceDeclaration {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  /**
+   * Mapping of dependency parameter (additional argument to concrete resource constructor) to `name` of resource to use
+   */
+  dependencies?: {
+    /**
+     * Path to content that replaces the $ref
+     */
+    // $ref?: string;
+    [k: string]: string;
+  };
+  /**
+   * Type of resource, expressed as a Python class name qualified relative to this `resources` module
+   */
+  resource_type: string;
+  /**
+   * Specification of resource; format is the SpecificationType that corresponds to the `resource_type`
+   */
+  specification?: {
+    [k: string]: unknown;
   };
   [k: string]: unknown;
 }
@@ -74,33 +531,29 @@ export interface ReportsReportTestScenarioReport {
    */
   // $ref?: string;
   /**
-   * True iff test scenario completed normally with no failed checks
-   */
-  successful?: boolean;
-  /**
-   * Time at which the test scenario started
-   */
-  start_time: string;
-  /**
-   * Reports for each of the test cases in this test scenario
+   * Reports for each of the test cases in this test scenario, in chronological order.
    */
   cases: ReportsReportTestCaseReport[];
+  /**
+   * If this test scenario performed cleanup, this report captures the relevant information.
+   */
+  cleanup?: null | ReportsReportTestStepReport;
   /**
    * URL at which this test scenario is described
    */
   documentation_url: string;
   /**
-   * If there was an error while executing this test scenario, this field describes the error
-   */
-  execution_error?: null | ReportsReportErrorReport;
-  /**
    * Time at which the test scenario completed or encountered an error
    */
   end_time?: string | null;
   /**
-   * If this test scenario performed cleanup, this report captures the relevant information.
+   * If there was an error while executing this test scenario, this field describes the error
    */
-  cleanup?: null | ReportsReportTestStepReport;
+  execution_error?: null | ReportsReportErrorReport;
+  /**
+   * Name of this test scenario
+   */
+  name: string;
   /**
    * Additional information about this scenario that may be useful
    */
@@ -116,9 +569,13 @@ export interface ReportsReportTestScenarioReport {
    */
   scenario_type: string;
   /**
-   * Name of this test scenario
+   * Time at which the test scenario started
    */
-  name: string;
+  start_time: string;
+  /**
+   * True iff test scenario completed normally with no failed checks
+   */
+  successful?: boolean;
   [k: string]: unknown;
 }
 /**
@@ -130,10 +587,6 @@ export interface ReportsReportTestCaseReport {
    */
   // $ref?: string;
   /**
-   * Name of this test case
-   */
-  name: string;
-  /**
    * URL at which this test case is described
    */
   documentation_url: string;
@@ -142,11 +595,15 @@ export interface ReportsReportTestCaseReport {
    */
   end_time?: string | null;
   /**
+   * Name of this test case
+   */
+  name: string;
+  /**
    * Time at which the test case started
    */
   start_time: string;
   /**
-   * Reports for each of the test steps in this test case
+   * Reports for each of the test steps in this test case, in chronological order.
    */
   steps: ReportsReportTestStepReport[];
   [k: string]: unknown;
@@ -249,29 +706,47 @@ export interface HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonito
    * Path to content that replaces the $ref
    */
   // $ref?: string;
-  response: HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonitorlibFetchResponseDescriptionJson;
-  request: HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonitorlibFetchRequestDescriptionJson;
-  [k: string]: unknown;
-}
-/**
- * monitoring.monitorlib.fetch.ResponseDescription, as defined in monitoring/monitorlib/fetch/__init__.py
- */
-export interface HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonitorlibFetchResponseDescriptionJson {
   /**
-   * Path to content that replaces the $ref
+   * If specified, the recognized type of this query.
    */
-  // $ref?: string;
-  code?: number | null;
-  failure?: string | null;
-  headers?: {
-    [k: string]: unknown;
-  } | null;
-  json?: {
-    [k: string]: unknown;
-  } | null;
-  elapsed_s: number;
-  body?: string | null;
-  reported: string;
+  query_type?:
+    | (
+        | "astm.f3411.v22a.sp.flights"
+        | "astm.f3411.v19.sp.flights"
+        | "astm.f3411.v22a.sp.flight_details"
+        | "astm.f3411.v19.sp.flight_details"
+        | "astm.f3548.v21.dss.queryOperationalIntentReferences"
+        | "astm.f3548.v21.dss.getOperationalIntentReference"
+        | "astm.f3548.v21.dss.createOperationalIntentReference"
+        | "astm.f3548.v21.dss.updateOperationalIntentReference"
+        | "astm.f3548.v21.dss.deleteOperationalIntentReference"
+        | "astm.f3548.v21.dss.queryConstraintReferences"
+        | "astm.f3548.v21.dss.getConstraintReference"
+        | "astm.f3548.v21.dss.createConstraintReference"
+        | "astm.f3548.v21.dss.updateConstraintReference"
+        | "astm.f3548.v21.dss.deleteConstraintReference"
+        | "astm.f3548.v21.dss.querySubscriptions"
+        | "astm.f3548.v21.dss.getSubscription"
+        | "astm.f3548.v21.dss.createSubscription"
+        | "astm.f3548.v21.dss.updateSubscription"
+        | "astm.f3548.v21.dss.deleteSubscription"
+        | "astm.f3548.v21.dss.makeDssReport"
+        | "astm.f3548.v21.uss.setUssAvailability"
+        | "astm.f3548.v21.uss.getUssAvailability"
+        | "astm.f3548.v21.uss.getOperationalIntentDetails"
+        | "astm.f3548.v21.uss.getOperationalIntentTelemetry"
+        | "astm.f3548.v21.uss.notifyOperationalIntentDetailsChanged"
+        | "astm.f3548.v21.uss.getConstraintDetails"
+        | "astm.f3548.v21.uss.notifyConstraintDetailsChanged"
+        | "astm.f3548.v21.uss.makeUssReport"
+      )
+    | null;
+  request: HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonitorlibFetchRequestDescriptionJson;
+  response: HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonitorlibFetchResponseDescriptionJson;
+  /**
+   * If specified, identifier of the USS/participant hosting the server involved in this query.
+   */
+  server_id?: string | null;
   [k: string]: unknown;
 }
 /**
@@ -296,6 +771,27 @@ export interface HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonito
   [k: string]: unknown;
 }
 /**
+ * monitoring.monitorlib.fetch.ResponseDescription, as defined in monitoring/monitorlib/fetch/__init__.py
+ */
+export interface HttpsGithubComInterussMonitoringBlobMainSchemasMonitoringMonitorlibFetchResponseDescriptionJson {
+  /**
+   * Path to content that replaces the $ref
+   */
+  // $ref?: string;
+  code?: number | null;
+  failure?: string | null;
+  headers?: {
+    [k: string]: unknown;
+  } | null;
+  json?: {
+    [k: string]: unknown;
+  } | null;
+  elapsed_s: number;
+  body?: string | null;
+  reported: string;
+  [k: string]: unknown;
+}
+/**
  * monitoring.uss_qualifier.reports.report.PassedCheck, as defined in monitoring/uss_qualifier/reports/report.py
  */
 export interface ReportsReportPassedCheck {
@@ -304,17 +800,21 @@ export interface ReportsReportPassedCheck {
    */
   // $ref?: string;
   /**
-   * Participants that may not have met the relevant requirements if this check had failed
-   */
-  participants: string[];
-  /**
    * Name of the check that passed
    */
   name: string;
   /**
+   * Participants that may not have met the relevant requirements if this check had failed
+   */
+  participants: string[];
+  /**
    * Requirements that would not have been met if this check had failed
    */
   requirements: string[];
+  /**
+   * Time the issue was discovered
+   */
+  timestamp: string;
   [k: string]: unknown;
 }
 /**
@@ -364,13 +864,25 @@ export interface ReportsReportActionGeneratorReport {
    */
   // $ref?: string;
   /**
+   * Reports from the actions generated by the action generator, in order of execution.
+   */
+  actions: ReportsReportTestSuiteActionReport1[];
+  /**
+   * Time at which the action generator completed or encountered an error
+   */
+  end_time?: string | null;
+  /**
    * Type of action generator
    */
   generator_type: string;
   /**
-   * Reports from the actions generated by the action generator
+   * Time at which the action generator started
    */
-  actions: ReportsReportTestSuiteActionReport1[];
+  start_time: string;
+  /**
+   * True iff all actions completed normally with no failed checks
+   */
+  successful?: boolean;
   [k: string]: unknown;
 }
 /**
@@ -404,37 +916,41 @@ export interface ReportsReportTestSuiteReport {
    */
   // $ref?: string;
   /**
-   * True iff test suite completed normally with no failed checks
+   * Reports from test scenarios and test suites comprising the test suite for this report, in order of execution.
    */
-  successful?: boolean;
-  /**
-   * Time at which the test suite started
-   */
-  start_time: string;
-  /**
-   * URL at which this test suite is described
-   */
-  documentation_url: string;
+  actions: ReportsReportTestSuiteActionReport1[];
   /**
    * List of capabilities defined in this test suite, evaluated for each participant.
    */
   capability_evaluations: ReportsReportParticipantCapabilityEvaluationReport[];
   /**
+   * URL at which this test suite is described
+   */
+  documentation_url: string;
+  /**
    * Time at which the test suite completed
    */
   end_time?: string | null;
   /**
-   * Reports from test scenarios and test suites comprising the test suite for this report
+   * Name of this test suite
    */
-  actions: ReportsReportTestSuiteActionReport1[];
+  name: string;
+  /**
+   * Reports for actions configured but not executed.
+   */
+  skipped_actions: ReportsReportSkippedActionReport[];
+  /**
+   * Time at which the test suite started
+   */
+  start_time: string;
+  /**
+   * True iff test suite completed normally with no failed checks
+   */
+  successful?: boolean;
   /**
    * Type/location of this test suite
    */
   suite_type: string;
-  /**
-   * Name of this test suite
-   */
-  name: string;
   [k: string]: unknown;
 }
 /**
@@ -709,384 +1225,22 @@ export interface ReportsReportAllConditionsEvaluationReport {
   [k: string]: unknown;
 }
 /**
- * Configuration used to run uss_qualifier
+ * monitoring.uss_qualifier.reports.report.SkippedActionReport, as defined in monitoring/uss_qualifier/reports/report.py
  */
-export interface ConfigurationsConfigurationTestConfiguration {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  action: SuitesDefinitionsTestSuiteActionDeclaration;
-  /**
-   * List of file inputs that should not be considered when computing the test baseline signature (e.g., environmental definitions).
-   */
-  non_baseline_inputs?: string[] | null;
-  resources: ResourcesDefinitionsResourceCollection;
-  [k: string]: unknown;
-}
-/**
- * The action this test configuration wants to run (usually a test suite)
- */
-export interface SuitesDefinitionsTestSuiteActionDeclaration {
+export interface ReportsReportSkippedActionReport {
   /**
    * Path to content that replaces the $ref
    */
   // $ref?: string;
   /**
-   * If this field is populated, declaration of a generator that will produce 0 or more test suite actions
+   * Index of the skipped action in the configured declaration.
    */
-  action_generator?: null | SuitesDefinitionsActionGeneratorDefinition;
+  action_declaration_index: number;
+  declaration: SuitesDefinitionsTestSuiteActionDeclaration2;
   /**
-   * If this field is populated, declaration of the test suite to run
+   * The reason the action was skipped.
    */
-  test_suite?: null | SuitesDefinitionsTestSuiteDeclaration;
-  /**
-   * What to do if this action fails
-   */
-  on_failure?: "Continue" | "Abort";
-  /**
-   * If this field is populated, declaration of the test scenario to run
-   */
-  test_scenario?: null | ScenariosDefinitionsTestScenarioDeclaration;
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.suites.definitions.ActionGeneratorDefinition, as defined in monitoring/uss_qualifier/suites/definitions.py
- */
-export interface SuitesDefinitionsActionGeneratorDefinition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Type of action generator
-   */
-  generator_type: string;
-  /**
-   * Mapping of the ID a resource will be known by in the child action -> the ID a resource is known by in the parent test suite.
-   *
-   * The child action resource ID <key> is supplied by the parent test suite resource ID <value>.
-   *
-   * Resources not included in this field will not be available to the child action.
-   *
-   * If the parent resource ID is suffixed with ? then the resource will not be required (and will not be populated for the child action when not present in the parent)
-   */
-  resources: {
-    /**
-     * Path to content that replaces the $ref
-     */
-    // $ref?: string;
-    [k: string]: string;
-  };
-  /**
-   * Specification of action generator; format is the ActionGeneratorSpecificationType that corresponds to the `generator_type`
-   */
-  specification?: {
-    [k: string]: unknown;
-  };
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.suites.definitions.TestSuiteDeclaration, as defined in monitoring/uss_qualifier/suites/definitions.py
- */
-export interface SuitesDefinitionsTestSuiteDeclaration {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Definition of test suite internal to the configuration -- specified instead of `suite_type`.
-   */
-  suite_definition?: null | SuitesDefinitionsTestSuiteDefinition;
-  /**
-   * Mapping of the ID a resource will be known by in the child test suite -> the ID a resource is known by in the parent test suite.
-   *
-   * The child suite resource <key> is supplied by the parent suite resource <value>.
-   */
-  resources: {
-    /**
-     * Path to content that replaces the $ref
-     */
-    // $ref?: string;
-    [k: string]: string;
-  };
-  /**
-   * Type/location of test suite.  Usually expressed as the file name of the suite definition (without extension) qualified relative to the `uss_qualifier` folder
-   */
-  suite_type?: string | null;
-  [k: string]: unknown;
-}
-/**
- * Schema for the definition of a test suite, analogous to the Python TestScenario subclass for scenarios
- *
- * monitoring.uss_qualifier.suites.definitions.TestSuiteDefinition, as defined in monitoring/uss_qualifier/suites/definitions.py
- */
-export interface SuitesDefinitionsTestSuiteDefinition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Name of the test suite
-   */
-  name: string;
-  /**
-   * The scenario executed after all the actions that evaluates the test suite report. Must be a ReportEvaluationScenario.
-   */
-  report_evaluation_scenario?: null | ScenariosDefinitionsTestScenarioDeclaration;
-  /**
-   * Definitions of capabilities verified by this test suite for individual participants.
-   */
-  participant_verifiable_capabilities?:
-    | ReportsCapabilityDefinitionsParticipantCapabilityDefinition[]
-    | null;
-  /**
-   * Enumeration of the resources used by this test suite
-   */
-  resources: {
-    /**
-     * Path to content that replaces the $ref
-     */
-    // $ref?: string;
-    [k: string]: string;
-  };
-  /**
-   * The actions to take when running the test suite.  Components will be executed in order.
-   */
-  actions: SuitesDefinitionsTestSuiteActionDeclaration1[];
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.scenarios.definitions.TestScenarioDeclaration, as defined in monitoring/uss_qualifier/scenarios/definitions.py
- */
-export interface ScenariosDefinitionsTestScenarioDeclaration {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Mapping of the ID a resource in the test scenario -> the ID a resource is known by in the parent test suite.
-   *
-   * The additional argument to concrete test scenario constructor <key> is supplied by the parent suite resource <value>.
-   */
-  resources?: {
-    /**
-     * Path to content that replaces the $ref
-     */
-    // $ref?: string;
-    [k: string]: string;
-  } | null;
-  /**
-   * Type/location of test scenario.  Usually expressed as the class name of the scenario module-qualified relative to the `uss_qualifier` folder
-   */
-  scenario_type: string;
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.reports.capability_definitions.ParticipantCapabilityDefinition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsParticipantCapabilityDefinition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Human-readable description of the capability.
-   */
-  description: string;
-  verification_condition: ReportsCapabilityDefinitionsCapabilityVerificationCondition;
-  /**
-   * Human-readable name of the capability.
-   */
-  name: string;
-  /**
-   * Identifier of this capability, unique at the level in which this capability is defined.
-   */
-  id: string;
-  [k: string]: unknown;
-}
-/**
- * Condition required in order to verify the capability.
- */
-export interface ReportsCapabilityDefinitionsCapabilityVerificationCondition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  no_failed_checks?: null | ReportsCapabilityDefinitionsNoFailedChecksCondition;
-  any_conditions?: null | ReportsCapabilityDefinitionsAnyCondition;
-  requirements_checked?: null | ReportsCapabilityDefinitionsRequirementsCheckedCondition;
-  all_conditions?: null | ReportsCapabilityDefinitionsAllConditions;
-  capability_verified?: null | ReportsCapabilityDefinitionsCapabilityVerifiedCondition;
-  [k: string]: unknown;
-}
-/**
- * Condition will only be satisfied if there are no applicable failed checks.
- *
- * For a capability to be verified for a participant, only checks including the participant's ID will be considered.
- *
- * monitoring.uss_qualifier.reports.capability_definitions.NoFailedChecksCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsNoFailedChecksCondition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  [k: string]: unknown;
-}
-/**
- * Condition will be satisfied when any of the specified conditions are satisfied.
- *
- * Note that an empty list of conditions will result in an unsuccessful evaluation.
- *
- * monitoring.uss_qualifier.reports.capability_definitions.AnyCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsAnyCondition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  conditions: ReportsCapabilityDefinitionsCapabilityVerificationCondition1[];
-  [k: string]: unknown;
-}
-/**
- * Specification of a single condition used to determine whether a capability should be verified.
- *
- * Exactly one field must be specified.
- *
- * monitoring.uss_qualifier.reports.capability_definitions.CapabilityVerificationCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsCapabilityVerificationCondition1 {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  no_failed_checks?: null | ReportsCapabilityDefinitionsNoFailedChecksCondition;
-  any_conditions?: null | ReportsCapabilityDefinitionsAnyCondition;
-  requirements_checked?: null | ReportsCapabilityDefinitionsRequirementsCheckedCondition;
-  all_conditions?: null | ReportsCapabilityDefinitionsAllConditions;
-  capability_verified?: null | ReportsCapabilityDefinitionsCapabilityVerifiedCondition;
-  [k: string]: unknown;
-}
-/**
- * Condition will only be satisfied if at least one successful check exists for all specified requirements.
- *
- * Note that an empty collection of requirements will result in an unsuccessful evaluation.
- *
- * monitoring.uss_qualifier.reports.capability_definitions.RequirementsCheckedCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsRequirementsCheckedCondition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  checked: RequirementsDefinitionsRequirementCollection;
-  [k: string]: unknown;
-}
-/**
- * Each requirement contained within this collection must be covered by at least one successful check.
- */
-export interface RequirementsDefinitionsRequirementCollection {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * This collection includes all of the requirements in all of these requirement collections.
-   */
-  requirement_collections?:
-    | RequirementsDefinitionsRequirementCollection1[]
-    | null;
-  /**
-   * This collection includes all of these requirements.
-   */
-  requirements?: string[] | null;
-  /**
-   * This collection includes all requirements in all of these requirement sets.
-   */
-  requirement_sets?: string[] | null;
-  /**
-   * This collection does not include any of these requirements, despite all previous fields.
-   */
-  exclude?: null | RequirementsDefinitionsRequirementCollection1;
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.requirements.definitions.RequirementCollection, as defined in monitoring/uss_qualifier/requirements/definitions.py
- */
-export interface RequirementsDefinitionsRequirementCollection1 {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * This collection includes all of the requirements in all of these requirement collections.
-   */
-  requirement_collections?:
-    | RequirementsDefinitionsRequirementCollection1[]
-    | null;
-  /**
-   * This collection includes all of these requirements.
-   */
-  requirements?: string[] | null;
-  /**
-   * This collection includes all requirements in all of these requirement sets.
-   */
-  requirement_sets?: string[] | null;
-  /**
-   * This collection does not include any of these requirements, despite all previous fields.
-   */
-  exclude?: null | RequirementsDefinitionsRequirementCollection1;
-  [k: string]: unknown;
-}
-/**
- * Condition will only be satisfied when all specified conditions are satisfied.
- *
- * Note that an empty list of conditions will result in a successful evaluation.
- *
- * monitoring.uss_qualifier.reports.capability_definitions.AllConditions, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsAllConditions {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  conditions: ReportsCapabilityDefinitionsCapabilityVerificationCondition1[];
-  [k: string]: unknown;
-}
-/**
- * Condition will be satisfied when the specified capability is verified.
- *
- * Note that a capability which do not declare any requirement will result in an unsuccessful evaluation.
- *
- * monitoring.uss_qualifier.reports.capability_definitions.CapabilityVerifiedCondition, as defined in monitoring/uss_qualifier/reports/capability_definitions.py
- */
-export interface ReportsCapabilityDefinitionsCapabilityVerifiedCondition {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Location of report to inspect for the verification of the specified capability, relative to the report in which
-   * the capability is defined.  Implicit default value is "$" (look for verified capability in the report in which the
-   * dependant capability is defined).
-   *
-   * If this location resolves to multiple TestSuiteReports, then the capability must be verified in all resolved reports
-   * in order for this condition to be satisfied.  When this location resolves to artifacts that are not
-   * TestSuiteReports, those artifacts will be ignored.
-   *
-   * Note that capabilities are verified in the order they are defined.  So, if capability B defined in a particular
-   * location depends on whether capability A in that same location is granted, capability A must be defined before
-   * capability B is defined.  Also note that capability verifications are computed as test components are completed.
-   * Since a parent test component (e.g., test suite) is not complete until all of its child components are complete, a
-   * descendant test component's capability condition cannot depend on whether an ancestor's (e.g., parent's) capability
-   * is verified.
-   */
-  capability_location?: string | null;
-  /**
-   * List of identifier of capability that must be verified for this condition to be satisfied.
-   */
-  capability_ids: string[];
+  reason: string;
   [k: string]: unknown;
 }
 /**
@@ -1096,7 +1250,7 @@ export interface ReportsCapabilityDefinitionsCapabilityVerifiedCondition {
  *
  * monitoring.uss_qualifier.suites.definitions.TestSuiteActionDeclaration, as defined in monitoring/uss_qualifier/suites/definitions.py
  */
-export interface SuitesDefinitionsTestSuiteActionDeclaration1 {
+export interface SuitesDefinitionsTestSuiteActionDeclaration2 {
   /**
    * Path to content that replaces the $ref
    */
@@ -1104,11 +1258,7 @@ export interface SuitesDefinitionsTestSuiteActionDeclaration1 {
   /**
    * If this field is populated, declaration of a generator that will produce 0 or more test suite actions
    */
-  action_generator?: null | SuitesDefinitionsActionGeneratorDefinition;
-  /**
-   * If this field is populated, declaration of the test suite to run
-   */
-  test_suite?: null | SuitesDefinitionsTestSuiteDeclaration;
+  action_generator?: null | ActionGeneratorsDefinitionsActionGeneratorDefinition;
   /**
    * What to do if this action fails
    */
@@ -1117,57 +1267,9 @@ export interface SuitesDefinitionsTestSuiteActionDeclaration1 {
    * If this field is populated, declaration of the test scenario to run
    */
   test_scenario?: null | ScenariosDefinitionsTestScenarioDeclaration;
-  [k: string]: unknown;
-}
-/**
- * Declarations for resources used by the test suite
- */
-export interface ResourcesDefinitionsResourceCollection {
   /**
-   * Path to content that replaces the $ref
+   * If this field is populated, declaration of the test suite to run
    */
-  // $ref?: string;
-  /**
-   * Mapping of globally (within resource collection) unique name identifying a resource to the declaration of that resource
-   */
-  resource_declarations: {
-    /**
-     * Path to content that replaces the $ref
-     */
-    // $ref?: string;
-    [
-      k: string
-    ]: ResourcesDefinitionsResourceDeclaration;
-  };
-  [k: string]: unknown;
-}
-/**
- * monitoring.uss_qualifier.resources.definitions.ResourceDeclaration, as defined in monitoring/uss_qualifier/resources/definitions.py
- */
-export interface ResourcesDefinitionsResourceDeclaration {
-  /**
-   * Path to content that replaces the $ref
-   */
-  // $ref?: string;
-  /**
-   * Mapping of dependency parameter (additional argument to concrete resource constructor) to `name` of resource to use
-   */
-  dependencies?: {
-    /**
-     * Path to content that replaces the $ref
-     */
-    // $ref?: string;
-    [k: string]: string;
-  };
-  /**
-   * Type of resource, expressed as a Python class name qualified relative to this `resources` module
-   */
-  resource_type: string;
-  /**
-   * Specification of resource; format is the SpecificationType that corresponds to the `resource_type`
-   */
-  specification?: {
-    [k: string]: unknown;
-  };
+  test_suite?: null | SuitesDefinitionsTestSuiteDeclaration;
   [k: string]: unknown;
 }
