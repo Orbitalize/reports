@@ -1,71 +1,63 @@
 {
-  "$id": "https://github.com/interuss/monitoring/blob/main/schemas/monitoring/uss_qualifier/reports/report/TestSuiteReport.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "monitoring.uss_qualifier.reports.report.TestSuiteReport, as defined in monitoring/uss_qualifier/reports/report.py",
+  "type": "object",
   "properties": {
     "$ref": {
-      "description": "Path to content that replaces the $ref",
-      "type": "string"
+      "type": "string",
+      "description": "Path to content that replaces the $ref"
     },
-    "actions": {
-      "description": "Reports from test scenarios and test suites comprising the test suite for this report, in order of execution.",
-      "items": {
-        "$ref": "TestSuiteActionReport.json"
-      },
-      "type": "array"
+    "successful": {
+      "type": "boolean",
+      "description": "True iff test suite completed normally with no failed checks"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time at which the test suite started"
+    },
+    "documentation_url": {
+      "type": "string",
+      "description": "URL at which this test suite is described"
     },
     "capability_evaluations": {
-      "description": "List of capabilities defined in this test suite, evaluated for each participant.",
+      "type": "array",
       "items": {
         "$ref": "ParticipantCapabilityEvaluationReport.json"
       },
-      "type": "array"
-    },
-    "documentation_url": {
-      "description": "URL at which this test suite is described",
-      "type": "string"
+      "description": "List of capabilities defined in this test suite, evaluated for each participant."
     },
     "end_time": {
-      "description": "Time at which the test suite completed",
-      "format": "date-time",
       "type": [
         "string",
         "null"
-      ]
-    },
-    "name": {
-      "description": "Name of this test suite",
-      "type": "string"
-    },
-    "skipped_actions": {
-      "description": "Reports for actions configured but not executed.",
-      "items": {
-        "$ref": "SkippedActionReport.json"
-      },
-      "type": "array"
-    },
-    "start_time": {
-      "description": "Time at which the test suite started",
+      ],
       "format": "date-time",
-      "type": "string"
+      "description": "Time at which the test suite completed"
     },
-    "successful": {
-      "description": "True iff test suite completed normally with no failed checks",
-      "type": "boolean"
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "TestSuiteActionReport.json"
+      },
+      "description": "Reports from test scenarios and test suites comprising the test suite for this report"
     },
     "suite_type": {
-      "description": "Type/location of this test suite",
-      "type": "string"
+      "type": "string",
+      "description": "Type/location of this test suite"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of this test suite"
     }
   },
+  "$id": "https://github.com/interuss/monitoring/blob/main/schemas/monitoring/uss_qualifier/reports/report/TestSuiteReport.json",
+  "description": "monitoring.uss_qualifier.reports.report.TestSuiteReport, as defined in monitoring/uss_qualifier/reports/report.py",
   "required": [
     "actions",
     "capability_evaluations",
     "documentation_url",
     "name",
-    "skipped_actions",
     "start_time",
     "suite_type"
-  ],
-  "type": "object"
+  ]
 }

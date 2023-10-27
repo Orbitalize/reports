@@ -1,41 +1,35 @@
 {
-  "$id": "https://github.com/interuss/monitoring/blob/main/schemas/monitoring/uss_qualifier/reports/report/PassedCheck.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "monitoring.uss_qualifier.reports.report.PassedCheck, as defined in monitoring/uss_qualifier/reports/report.py",
+  "type": "object",
   "properties": {
     "$ref": {
-      "description": "Path to content that replaces the $ref",
-      "type": "string"
-    },
-    "name": {
-      "description": "Name of the check that passed",
-      "type": "string"
+      "type": "string",
+      "description": "Path to content that replaces the $ref"
     },
     "participants": {
-      "description": "Participants that may not have met the relevant requirements if this check had failed",
+      "type": "array",
       "items": {
         "type": "string"
       },
-      "type": "array"
+      "description": "Participants that may not have met the relevant requirements if this check had failed"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the check that passed"
     },
     "requirements": {
-      "description": "Requirements that would not have been met if this check had failed",
+      "type": "array",
       "items": {
         "type": "string"
       },
-      "type": "array"
-    },
-    "timestamp": {
-      "description": "Time the issue was discovered",
-      "format": "date-time",
-      "type": "string"
+      "description": "Requirements that would not have been met if this check had failed"
     }
   },
+  "$id": "https://github.com/interuss/monitoring/blob/main/schemas/monitoring/uss_qualifier/reports/report/PassedCheck.json",
+  "description": "monitoring.uss_qualifier.reports.report.PassedCheck, as defined in monitoring/uss_qualifier/reports/report.py",
   "required": [
     "name",
     "participants",
-    "requirements",
-    "timestamp"
-  ],
-  "type": "object"
+    "requirements"
+  ]
 }

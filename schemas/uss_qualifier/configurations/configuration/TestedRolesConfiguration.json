@@ -1,19 +1,19 @@
 {
-  "$id": "https://github.com/interuss/monitoring/blob/main/schemas/monitoring/uss_qualifier/configurations/configuration/TestedRolesConfiguration.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "monitoring.uss_qualifier.configurations.configuration.TestedRolesConfiguration, as defined in monitoring/uss_qualifier/configurations/configuration.py",
+  "type": "object",
   "properties": {
     "$ref": {
-      "description": "Path to content that replaces the $ref",
-      "type": "string"
+      "type": "string",
+      "description": "Path to content that replaces the $ref"
     },
     "report_path": {
-      "description": "Path of folder to write HTML files containing a fulfilled-requirements-based view of the test report",
-      "type": "string"
+      "type": "string",
+      "description": "Path of HTML file to contain a fulfilled-requirements-based view of the test report"
     }
   },
+  "$id": "https://github.com/interuss/monitoring/blob/main/schemas/monitoring/uss_qualifier/configurations/configuration/TestedRolesConfiguration.json",
+  "description": "monitoring.uss_qualifier.configurations.configuration.TestedRolesConfiguration, as defined in monitoring/uss_qualifier/configurations/configuration.py",
   "required": [
     "report_path"
-  ],
-  "type": "object"
+  ]
 }
