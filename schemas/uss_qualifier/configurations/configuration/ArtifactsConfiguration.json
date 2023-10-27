@@ -44,34 +44,12 @@
         }
       ]
     },
-    "sequence_view": {
-      "description": "If specified, configuration describing a desired report describing the sequence of events that occurred during the test",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "$ref": "SequenceViewConfiguration.json"
-        }
-      ]
-    },
     "templated_reports": {
       "description": "List of report templates to be rendered",
       "items": {
         "$ref": "TemplatedReportConfiguration.json"
       },
       "type": "array"
-    },
-    "tested_requirements": {
-      "description": "If specified, configuration describing a desired report summarizing all tested requirements for each participant",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "$ref": "TestedRequirementsConfiguration.json"
-        }
-      ]
     },
     "tested_roles": {
       "description": "If specified, configuration describing a desired report summarizing tested requirements for each specified participant and role",
